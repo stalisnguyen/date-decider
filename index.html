@@ -5,297 +5,272 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Date Decider</title>
+  <title>The Ritual</title>
 
   <style>
     :root {
-      --p: #81a1ff; --s: #ff9edb; --a: #a1ffda;
-      --bg: #0f1115;
-      --glass: rgba(255, 255, 255, 0.08);
-      --glass-heavy: rgba(255, 255, 255, 0.12);
-      --border: rgba(255, 255, 255, 0.15);
+      --p: #a2b9ff; /* Soft Blue */
+      --s: #ffafcc; /* Soft Pink */
+      --bg: #0a0a0c;
+      --glass: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.12);
       --text: #ffffff;
-      --text-muted: rgba(255, 255, 255, 0.6);
+      --text-dim: rgba(255, 255, 255, 0.5);
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     
     body {
-      margin: 0; font-family: -apple-system, "SF Pro Display", system-ui, sans-serif;
+      margin: 0; font-family: -apple-system, "SF Pro Display", sans-serif;
       background: var(--bg); color: var(--text);
-      height: 100vh; overflow: hidden; display: flex; flex-direction: column;
+      height: 100dvh; overflow: hidden;
+      display: flex; flex-direction: column;
+      user-select: none;
     }
 
-    /* Living Mesh Background */
-    .mesh {
+    /* Modern Mesh Background */
+    .bg {
       position: fixed; inset: 0; z-index: -1;
-      background: 
-        radial-gradient(at 0% 0%, rgba(129, 161, 255, 0.15) 0px, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(255, 158, 219, 0.15) 0px, transparent 50%),
-        radial-gradient(at 50% 100%, rgba(161, 255, 218, 0.1) 0px, transparent 50%);
-      filter: blur(40px);
+      background: radial-gradient(circle at 20% 20%, rgba(162,185,255,0.15), transparent 40%),
+                  radial-gradient(circle at 80% 80%, rgba(255,175,204,0.15), transparent 40%);
     }
 
+    /* Minimal Top Navigation */
     header {
-      padding: calc(env(safe-area-inset-top) + 20px) 25px 15px;
+      padding: calc(env(safe-area-inset-top) + 20px) 25px 0;
       display: flex; justify-content: space-between; align-items: center;
-      z-index: 10;
     }
 
-    .music-toggle {
-      width: 40px; height: 40px; border-radius: 50%;
-      background: var(--glass); border: 1px solid var(--border);
-      display: grid; place-items: center; cursor: pointer;
-      transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .music-toggle.playing { background: var(--p); box-shadow: 0 0 20px rgba(129, 161, 255, 0.4); }
+    .dots { display: flex; gap: 8px; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--glass-border); transition: 0.5s cubic-bezier(0.2, 1, 0.3, 1); }
+    .dot.active { width: 24px; border-radius: 10px; background: var(--p); }
 
-    .progress-dots { display: flex; gap: 6px; }
-    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: 0.4s; }
-    .dot.active { width: 20px; border-radius: 10px; background: var(--p); }
-
-    main { flex: 1; overflow-y: auto; padding: 20px; position: relative; }
-
-    .tab-content {
-      display: none; opacity: 0; transform: scale(0.95) translateY(10px);
-      transition: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .tab-content.active { display: block; opacity: 1; transform: scale(1) translateY(0); }
-
-    .glass-card {
-      background: var(--glass); backdrop-filter: blur(25px);
-      border: 1px solid var(--border); border-radius: 32px;
-      padding: 30px 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-      margin-bottom: 20px;
+    .audio-pill {
+      background: var(--glass); border: 1px solid var(--glass-border);
+      padding: 8px 16px; border-radius: 100px; font-size: 12px;
+      backdrop-filter: blur(10px); display: flex; align-items: center; gap: 8px;
     }
 
-    h1 { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin: 0 0 10px; }
-    p { font-size: 17px; color: var(--text-muted); line-height: 1.6; }
+    /* Vertical Centering Container */
+    main {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      padding: 20px; padding-bottom: calc(env(safe-area-inset-bottom) + 100px);
+    }
 
+    .content-card {
+      width: 100%; max-width: 400px;
+      display: none; opacity: 0; transform: translateY(20px) scale(0.98);
+      transition: all 0.6s cubic-bezier(0.2, 1, 0.3, 1);
+    }
+    .content-card.active { display: block; opacity: 1; transform: translateY(0) scale(1); }
+
+    .glass-box {
+      background: var(--glass); backdrop-filter: blur(30px);
+      border: 1px solid var(--glass-border); border-radius: 40px;
+      padding: 40px 30px; text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    h1 { font-size: 34px; font-weight: 700; margin: 0 0 15px; letter-spacing: -1px; }
+    p { font-size: 18px; color: var(--text-dim); line-height: 1.5; margin-bottom: 30px; }
+
+    /* Buttons */
     .btn {
-      width: 100%; padding: 20px; border-radius: 20px; border: none;
-      font-size: 17px; font-weight: 700; cursor: pointer;
-      transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      display: flex; align-items: center; justify-content: center; gap: 10px;
       background: var(--text); color: var(--bg);
+      border: none; padding: 20px; border-radius: 22px;
+      font-size: 17px; font-weight: 600; width: 100%;
+      transition: transform 0.2s;
     }
-    .btn:active { transform: scale(0.92); opacity: 0.8; }
-    .btn-glass { background: var(--glass-heavy); color: var(--text); border: 1px solid var(--border); }
+    .btn:active { transform: scale(0.95); }
+    .btn-secondary { background: var(--glass); color: var(--text); border: 1px solid var(--glass-border); margin-top: 12px; }
 
-    /* Modern Navigation */
+    /* Bottom Nav Bar */
     nav {
-      position: fixed; bottom: 25px; left: 20px; right: 20px;
-      background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px);
-      border-radius: 24px; border: 1px solid var(--border);
-      padding: 8px; display: grid; grid-template-columns: repeat(4, 1fr);
-      z-index: 100;
+      position: fixed; bottom: calc(env(safe-area-inset-bottom) + 20px);
+      left: 50%; transform: translateX(-50%);
+      width: calc(100% - 40px); max-width: 400px;
+      background: rgba(20, 20, 25, 0.8); backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border); border-radius: 30px;
+      padding: 8px; display: flex; justify-content: space-around;
     }
-    .nav-item {
-      display: flex; flex-direction: column; align-items: center; gap: 4px;
-      padding: 12px 0; border-radius: 18px; color: var(--text-muted); transition: 0.3s;
+    .nav-btn {
+      padding: 12px; border-radius: 22px; color: var(--text-dim);
+      transition: 0.3s; font-size: 20px; flex: 1; text-align: center;
     }
-    .nav-item.active { background: var(--glass-heavy); color: var(--p); }
-    .nav-icon { font-size: 20px; }
+    .nav-btn.active { color: var(--p); background: var(--glass); }
 
-    /* Timeline */
-    .timeline { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-    .slot {
-      display: flex; align-items: center; gap: 20px; padding: 18px;
-      background: var(--glass); border-radius: 20px; border: 1px solid var(--border);
-    }
-    .time { font-size: 11px; font-weight: 800; color: var(--p); text-transform: uppercase; letter-spacing: 1px; width: 70px; }
-    .act { font-size: 15px; font-weight: 500; }
+    /* Result Animation */
+    @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+    .loading { animation: pulse 1.5s infinite; color: var(--p); font-weight: 700; letter-spacing: 2px; }
 
-    /* Bokeh Particle Effect */
-    #canvas { position: fixed; inset: 0; pointer-events: none; z-index: 99; }
+    /* Timeline Styling */
+    .timeline { text-align: left; display: flex; flex-direction: column; gap: 12px; }
+    .step { display: flex; gap: 15px; align-items: center; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 20px; }
+    .step-time { font-size: 11px; font-weight: 800; color: var(--p); width: 65px; }
+    .step-text { font-size: 15px; }
 
-    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    .spinner { font-size: 40px; animation: spin 4s linear infinite; margin-bottom: 20px; display: inline-block; }
   </style>
 </head>
 <body>
 
-  <div class="mesh"></div>
-  <canvas id="canvas"></canvas>
+  <div class="bg"></div>
 
   <header>
-    <div class="progress-dots">
+    <div class="dots">
       <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
     </div>
-    <button class="music-toggle" id="mToggle" onclick="toggleMusic()">
-      <span id="mIcon">🔇</span>
-    </button>
+    <div class="audio-pill" onclick="toggleMusic()">
+      <span id="m-icon">🔇</span> <span id="m-status">Muted</span>
+    </div>
   </header>
 
   <main>
-    <section id="tab-story" class="tab-content active">
-      <div class="glass-card">
-        <span style="font-size: 40px;">🌙</span>
-        <h1>The Ritual.</h1>
-        <p>A simple path to a perfect Saturday. No overthinking, no friction. Just you, your person, and a curated plan.</p>
-        <button class="btn" onclick="switchTab('transition')">Begin →</button>
+    <div id="tab-story" class="content-card active">
+      <div class="glass-box">
+        <div style="font-size: 44px; margin-bottom: 20px;">🕊️</div>
+        <h1>The Ritual</h1>
+        <p>A quiet way to decide our tomorrow. No stress, just us.</p>
+        <button class="btn" onclick="startApp()">Start the ritual →</button>
       </div>
-    </section>
+    </div>
 
-    <section id="tab-transition" class="tab-content">
-      <div class="glass-card" style="text-align: center; padding: 60px 24px;">
-        <span class="spinner">✨</span>
-        <h1>Breath in.</h1>
-        <p>Let go of the week behind you. Imagine tomorrow as a blank canvas, warm and slow.</p>
-        <button class="btn" onclick="switchTab('decider')">Ready to Decide</button>
+    <div id="tab-vibe" class="content-card">
+      <div class="glass-box">
+        <div style="font-size: 44px; margin-bottom: 20px;">✨</div>
+        <h1>Take a Breath</h1>
+        <p>Tomorrow is a gift. Let go of the plans and let the vibe lead the way.</p>
+        <button class="btn" onclick="goTo('decide')">I'm Ready</button>
       </div>
-    </section>
+    </div>
 
-    <section id="tab-decider" class="tab-content">
-      <div class="glass-card" style="text-align: center; overflow: hidden; position: relative;">
-        <div id="deciderPlaceholder">
-          <div style="font-size: 60px; margin-bottom: 20px;">🔮</div>
-          <h2>Invite Fate</h2>
-          <p>Tap to let the universe decide the vibe for your Saturday.</p>
-          <button class="btn" onclick="runDecider()">Roll Destiny</button>
+    <div id="tab-decide" class="content-card">
+      <div class="glass-box">
+        <div id="roll-ui">
+          <div style="font-size: 44px; margin-bottom: 20px;">🎲</div>
+          <h1>Invite Fate</h1>
+          <p>Tap to let destiny choose our Saturday experience.</p>
+          <button class="btn" onclick="runDecider()">Decide for us</button>
         </div>
-        
-        <div id="deciderResult" style="display: none;">
-          <h3 style="color: var(--p); text-transform: uppercase; font-size: 12px; letter-spacing: 2px;">The Vibe is Set</h3>
-          <h1 id="resTitle">---</h1>
-          <p id="resDesc">---</p>
-          <button class="btn" onclick="switchTab('plan')">Unlock Schedule</button>
-          <button class="btn btn-glass" style="margin-top: 10px;" onclick="runDecider()">Wait, Reroll</button>
+        <div id="result-ui" style="display: none;">
+          <div class="loading" style="margin-bottom: 10px;">DESTINY PICKED</div>
+          <h1 id="res-title">---</h1>
+          <p id="res-desc">---</p>
+          <button class="btn" onclick="goTo('plan')">See the Schedule</button>
+          <button class="btn btn-secondary" onclick="runDecider()">Reroll</button>
         </div>
       </div>
-    </section>
+    </div>
 
-    <section id="tab-plan" class="tab-content">
-      <div class="glass-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <h1 id="planTitle" style="font-size: 24px; margin: 0;">No Plan</h1>
-          <button onclick="copyPlan()" class="music-toggle">📋</button>
-        </div>
+    <div id="tab-plan" class="content-card">
+      <div class="glass-box" style="padding: 30px 20px;">
+        <h2 id="plan-name" style="margin-top:0">Tomorrow's Path</h2>
         <div class="timeline" id="timeline"></div>
+        <button class="btn btn-secondary" style="margin-top: 25px;" onclick="location.reload()">Reset Ritual</button>
       </div>
-      <button class="btn btn-glass" onclick="resetApp()">Start Ritual Over</button>
-    </section>
+    </div>
   </main>
 
   <nav>
-    <div class="nav-item active" onclick="switchTab('story')" id="n-story"><span class="nav-icon">📖</span></div>
-    <div class="nav-item" onclick="switchTab('transition')" id="n-transition"><span class="nav-icon">🍃</span></div>
-    <div class="nav-item" onclick="switchTab('decider')" id="n-decider"><span class="nav-icon">🎲</span></div>
-    <div class="nav-item" onclick="switchTab('plan')" id="n-plan"><span class="nav-icon">📅</span></div>
+    <div class="nav-btn active" id="n-story" onclick="goTo('story')">📖</div>
+    <div class="nav-btn" id="n-vibe" onclick="goTo('vibe')">🍃</div>
+    <div class="nav-btn" id="n-decide" onclick="goTo('decide')">🎲</div>
+    <div class="nav-btn" id="n-plan" onclick="goTo('plan')">📅</div>
   </nav>
 
   <script>
-    const OPTIONS = [
+    const DATA = [
       {
-        id: 'out', name: 'Out & About', emoji: '🏙️', desc: 'Step into the world. Fresh air, city lights, and shared moments.',
-        timeline: [["10:00 AM", "Slow Morning Coffee"], ["11:30 AM", "The Brunch Mission"], ["2:00 PM", "Cultural Exploration"], ["7:00 PM", "Dinner Under Lights"]]
+        name: "Out & About", emoji: "🏙️", desc: "Fresh air and city light.",
+        steps: [["10:00", "Coffee walk"], ["12:30", "Brunch mission"], ["15:00", "Explore"], ["19:00", "Dinner out"]]
       },
       {
-        id: 'home', name: 'Home Sanctuary', emoji: '🏠', desc: 'Turning your space into a private world of comfort and play.',
-        timeline: [["10:30 AM", "Breakfast in Bed"], ["1:00 PM", "Cozy Gaming/Puzzle"], ["4:00 PM", "Nap & Slow Afternoon"], ["7:30 PM", "Homemade Feast"]]
+        name: "Home Sanctuary", emoji: "🏠", desc: "Pure comfort and peace.",
+        steps: [["11:00", "Slow breakfast"], ["14:00", "Movies / Games"], ["17:00", "Long shower"], ["20:00", "Homemade feast"]]
       }
     ];
 
-    let currentChoice = JSON.parse(localStorage.getItem('dateChoiceModern'));
+    let currentChoice = null;
 
-    // TAB SYSTEM
-    function switchTab(id) {
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.querySelectorAll('.dot').forEach((d, i) => {
-          const steps = ['story', 'transition', 'decider', 'plan'];
-          d.classList.toggle('active', i === steps.indexOf(id));
-      });
-
-      const el = document.getElementById('tab-' + id);
-      el.style.display = 'block';
-      setTimeout(() => el.classList.add('active'), 50);
-      document.getElementById('n-' + id).classList.add('active');
-
-      if (id === 'plan' && currentChoice) renderPlan(currentChoice);
+    // AUDIO ENGINE (Synthesized Ambient)
+    let audioCtx, gain, osc;
+    function initAudio() {
+      if (audioCtx) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      gain = audioCtx.createGain();
+      gain.connect(audioCtx.destination);
+      gain.gain.setValueAtTime(0, audioCtx.currentTime);
     }
-
-    // DECIDER
-    function runDecider() {
-      const placeholder = document.getElementById('deciderPlaceholder');
-      const result = document.getElementById('deciderResult');
-      placeholder.style.opacity = '0.3';
-      
-      if (window.navigator.vibrate) window.navigator.vibrate(50);
-
-      setTimeout(() => {
-        currentChoice = OPTIONS[Math.floor(Math.random() * OPTIONS.length)];
-        localStorage.setItem('dateChoiceModern', JSON.stringify(currentChoice));
-        document.getElementById('resTitle').textContent = currentChoice.emoji + " " + currentChoice.name;
-        document.getElementById('resDesc').textContent = currentChoice.desc;
-        placeholder.style.display = 'none';
-        result.style.display = 'block';
-        launchBokeh();
-      }, 800);
-    }
-
-    function renderPlan(choice) {
-      document.getElementById('planTitle').textContent = choice.name;
-      document.getElementById('timeline').innerHTML = choice.timeline.map(i => `
-        <div class="slot"><div class="time">${i[0]}</div><div class="act">${i[1]}</div></div>
-      `).join('');
-    }
-
-    function resetApp() { localStorage.removeItem('dateChoiceModern'); location.reload(); }
-
-    // BOKEH EFFECT
-    function launchBokeh() {
-      const c = document.getElementById("canvas");
-      const ctx = c.getContext("2d");
-      c.width = window.innerWidth; c.height = window.innerHeight;
-      let p = Array.from({length:30}, () => ({
-        x: Math.random()*c.width, y: c.height + 50,
-        s: Math.random()*40+10, vY: -(Math.random()*2+1),
-        o: Math.random()
-      }));
-      function draw() {
-        ctx.clearRect(0,0,c.width,c.height);
-        p.forEach(i => {
-          i.y += i.vY; i.o -= 0.005;
-          ctx.beginPath();
-          ctx.arc(i.x, i.y, i.s, 0, Math.PI*2);
-          ctx.fillStyle = `rgba(129, 161, 255, ${i.o})`;
-          ctx.fill();
-        });
-        if(p[0].o > 0) requestAnimationFrame(draw);
-      }
-      draw();
-    }
-
-    // MUSIC SYSTEM (Web Audio API for Synthesized Dream Loop)
-    let audioCtx, oscillator, gainNode;
-    let isPlaying = false;
 
     function toggleMusic() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      
-      if (!isPlaying) {
-        oscillator = audioCtx.createOscillator();
-        gainNode = audioCtx.createGain();
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(196.00, audioCtx.currentTime); // G3
-        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 2);
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        oscillator.start();
-        
-        document.getElementById('mIcon').textContent = '🎵';
-        document.getElementById('mToggle').classList.add('playing');
-        isPlaying = true;
+      if (!audioCtx) initAudio();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      if (osc) {
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1);
+        setTimeout(() => { osc.stop(); osc = null; }, 1000);
+        document.getElementById('m-icon').textContent = '🔇';
+        document.getElementById('m-status').textContent = 'Muted';
       } else {
-        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
-        setTimeout(() => oscillator.stop(), 1000);
-        document.getElementById('mIcon').textContent = '🔇';
-        document.getElementById('mToggle').classList.remove('playing');
-        isPlaying = false;
+        osc = audioCtx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+        osc.connect(gain);
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(0.05, audioCtx.currentTime + 2);
+        document.getElementById('m-icon').textContent = '🎵';
+        document.getElementById('m-status').textContent = 'Playing';
       }
+    }
+
+    // NAVIGATION
+    function goTo(id) {
+      document.querySelectorAll('.content-card').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.dot').forEach((d, i) => {
+        const order = ['story', 'vibe', 'decide', 'plan'];
+        d.classList.toggle('active', i === order.indexOf(id));
+      });
+
+      const target = document.getElementById('tab-' + id);
+      target.style.display = 'block';
+      setTimeout(() => target.classList.add('active'), 50);
+      document.getElementById('n-' + id).classList.add('active');
+
+      if (id === 'plan' && currentChoice) renderPlan();
+    }
+
+    function startApp() {
+      initAudio(); // Essential for iOS music unlock
+      goTo('vibe');
+    }
+
+    // LOGIC
+    function runDecider() {
+      document.getElementById('roll-ui').style.display = 'none';
+      document.getElementById('result-ui').style.display = 'block';
+      const titles = ["Sifting stars...", "Consulting fate...", "Almost there..."];
+      let i = 0;
+      const interval = setInterval(() => {
+        document.getElementById('res-title').textContent = titles[i % 3];
+        i++;
+      }, 300);
+
+      setTimeout(() => {
+        clearInterval(interval);
+        currentChoice = DATA[Math.floor(Math.random() * DATA.length)];
+        document.getElementById('res-title').textContent = currentChoice.emoji + " " + currentChoice.name;
+        document.getElementById('res-desc').textContent = currentChoice.desc;
+      }, 1500);
+    }
+
+    function renderPlan() {
+      document.getElementById('plan-name').textContent = currentChoice.emoji + " " + currentChoice.name;
+      document.getElementById('timeline').innerHTML = currentChoice.steps.map(s => `
+        <div class="step">
+          <div class="step-time">${s[0]}</div>
+          <div class="step-text">${s[1]}</div>
+        </div>
+      `).join('');
     }
   </script>
 </body>
