@@ -19,8 +19,8 @@
       --line: rgba(20,22,30,.12);
       --shadow: 0 18px 50px rgba(20,22,30,.12);
 
-      --cardSolid: rgba(255,255,255,.90);
-      --cardSoft: rgba(255,255,255,.76);
+      --cardSolid: rgba(255,255,255,.92);
+      --cardSoft: rgba(255,255,255,.78);
 
       --r: 22px;
     }
@@ -39,47 +39,89 @@
         linear-gradient(135deg, var(--bg1), var(--bg2));
     }
 
-    /* subtle animated grain */
+    /* Animated blobs (visible effect) */
+    .blobs{
+      position: fixed;
+      inset: -20%;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(40px);
+      opacity: .9;
+      animation: blobsFloat 16s ease-in-out infinite alternate;
+    }
+    .blob{
+      position:absolute;
+      width: 520px;
+      height: 520px;
+      border-radius: 999px;
+      mix-blend-mode: multiply;
+      opacity: .55;
+      transform: translate3d(0,0,0);
+    }
+    .b1{ left: 8%; top: 10%; background: rgba(120,180,255,.55); animation: b1 18s ease-in-out infinite alternate; }
+    .b2{ right: 8%; top: 18%; background: rgba(255,150,210,.55); animation: b2 20s ease-in-out infinite alternate; }
+    .b3{ left: 28%; bottom: 6%; background: rgba(140,255,210,.48); animation: b3 22s ease-in-out infinite alternate; }
+
+    @keyframes blobsFloat{
+      from{ transform: translate3d(0,0,0) scale(1); }
+      to{ transform: translate3d(2%, -1.5%, 0) scale(1.03); }
+    }
+    @keyframes b1{ from{ transform: translate(0,0) scale(1);} to{ transform: translate(60px, 40px) scale(1.08);} }
+    @keyframes b2{ from{ transform: translate(0,0) scale(1);} to{ transform: translate(-70px, 55px) scale(1.06);} }
+    @keyframes b3{ from{ transform: translate(0,0) scale(1);} to{ transform: translate(40px, -60px) scale(1.10);} }
+
+    /* Subtle grain */
     .grain{
       pointer-events:none;
       position:fixed; inset:0;
+      z-index: 1;
       background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" stitchTiles="stitch"/></filter><rect width="180" height="180" filter="url(%23n)" opacity=".35"/></svg>');
       mix-blend-mode: overlay;
-      opacity:.03;
-      animation: float 10s ease-in-out infinite alternate;
+      opacity:.028;
+      animation: grainFloat 10s ease-in-out infinite alternate;
     }
-    @keyframes float{ from{transform:translate3d(0,0,0)} to{transform:translate3d(12px,-8px,0)} }
+    @keyframes grainFloat{
+      from{transform:translate3d(0,0,0)}
+      to{transform:translate3d(10px,-6px,0)}
+    }
 
-    /* layout */
     .wrap{
       max-width: 980px;
       margin: 0 auto;
       padding: calc(18px + env(safe-area-inset-top)) 16px calc(74px + env(safe-area-inset-bottom));
       position:relative;
+      z-index: 2;
     }
 
     header{
       display:flex; align-items:center; justify-content:space-between;
       gap:12px;
       padding: 6px 0 14px;
+      animation: enterDown .55s ease-out both;
     }
+    @keyframes enterDown{
+      from{opacity:0; transform: translateY(-10px)}
+      to{opacity:1; transform: translateY(0)}
+    }
+
     .brand{ display:flex; align-items:center; gap:12px; user-select:none; }
     .logo{
       width:42px; height:42px; border-radius:14px;
-      background: linear-gradient(135deg, rgba(255,255,255,.70), rgba(255,255,255,.28));
+      background: linear-gradient(135deg, rgba(255,255,255,.76), rgba(255,255,255,.32));
       border:1px solid var(--line);
-      box-shadow: 0 10px 30px rgba(20,22,30,.10);
+      box-shadow: 0 14px 40px rgba(20,22,30,.12);
       display:grid; place-items:center;
       position:relative; overflow:hidden;
+      transform: translateZ(0);
     }
     .logo:before{
       content:"";
       position:absolute; inset:-40%;
-      background: conic-gradient(from 180deg, rgba(20,22,30,0), rgba(20,22,30,.10), rgba(20,22,30,0));
+      background: conic-gradient(from 180deg, rgba(20,22,30,0), rgba(20,22,30,.12), rgba(20,22,30,0));
       animation: spin 3.2s linear infinite;
     }
     @keyframes spin{ to{ transform:rotate(360deg) } }
-    .logo span{ position:relative; font-weight:800; opacity:.95; }
+    .logo span{ position:relative; font-weight:900; opacity:.95; }
 
     .title{ display:flex; flex-direction:column; line-height:1.12; }
     .title strong{ font-size:14px; letter-spacing:.2px; }
@@ -89,16 +131,17 @@
       padding:10px 12px;
       border:1px solid var(--line);
       border-radius: 999px;
-      background: rgba(255,255,255,.60);
+      background: rgba(255,255,255,.70);
       color:var(--muted);
       font-size:12px;
       display:flex; align-items:center; gap:8px;
       white-space:nowrap;
+      box-shadow: 0 10px 26px rgba(20,22,30,.08);
     }
     .dot{
       width:8px; height:8px; border-radius:50%;
       background: rgba(120,255,190,.9);
-      box-shadow: 0 0 20px rgba(120,255,190,.35);
+      box-shadow: 0 0 22px rgba(120,255,190,.35);
     }
 
     .card{
@@ -108,9 +151,9 @@
       box-shadow: var(--shadow);
       padding: 18px;
       backdrop-filter: blur(8px);
+      transform: translateZ(0);
     }
 
-    /* hero */
     .hero{
       display:grid;
       grid-template-columns: 1.3fr .9fr;
@@ -119,11 +162,20 @@
       margin-top: 6px;
     }
 
+    .hero > .card{
+      animation: enterUp .65s cubic-bezier(.2,.9,.2,1) both;
+    }
+    .side{ animation: enterUp .75s cubic-bezier(.2,.9,.2,1) both; }
+    @keyframes enterUp{
+      from{opacity:0; transform: translateY(14px)}
+      to{opacity:1; transform: translateY(0)}
+    }
+
     .h1{
-      font-size: clamp(24px, 4.2vw, 34px);
-      line-height: 1.08;
+      font-size: clamp(26px, 4.2vw, 36px);
+      line-height: 1.05;
       margin: 6px 0 10px;
-      letter-spacing:-.5px;
+      letter-spacing:-.6px;
     }
     .sub{
       color: var(--muted);
@@ -140,23 +192,48 @@
       align-items:center;
     }
 
+    /* Buttons with ripple + glow */
     button{
       cursor:pointer;
       border:1px solid rgba(20,22,30,.14);
-      background: rgba(255,255,255,.72);
+      background: rgba(255,255,255,.76);
       color: var(--text);
       padding: 12px 14px;
       border-radius: 14px;
-      font-weight: 750;
+      font-weight: 850;
       letter-spacing:.2px;
-      transition: transform .15s ease, background .2s ease, border-color .2s ease;
+      transition: transform .15s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
       user-select:none;
+      position:relative;
+      overflow:hidden;
     }
-    button:hover{ transform: translateY(-1px); background: rgba(255,255,255,.86) }
-    button:active{ transform: translateY(1px) }
+    button:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 14px 34px rgba(20,22,30,.10);
+    }
+    button:active{ transform: translateY(1px) scale(.99); }
+
+    button::after{
+      content:"";
+      position:absolute;
+      left: var(--rx, 50%);
+      top: var(--ry, 50%);
+      width: 10px; height: 10px;
+      transform: translate(-50%,-50%) scale(0);
+      border-radius: 999px;
+      background: rgba(20,22,30,.10);
+      opacity: 0;
+      transition: transform .45s ease, opacity .55s ease;
+      pointer-events:none;
+    }
+    button.ripple::after{
+      transform: translate(-50%,-50%) scale(18);
+      opacity: 1;
+    }
 
     .primary{
-      background: linear-gradient(135deg, rgba(120,180,255,.26), rgba(255,150,210,.20));
+      background: linear-gradient(135deg, rgba(120,180,255,.30), rgba(255,150,210,.24));
       border-color: rgba(20,22,30,.16);
     }
 
@@ -170,7 +247,9 @@
       padding:16px;
       display:flex; flex-direction:column; gap:10px;
       min-height: 150px;
+      transition: transform .2s ease, box-shadow .2s ease;
     }
+    .mini:hover{ transform: translateY(-2px); box-shadow: 0 18px 40px rgba(20,22,30,.10); }
     .mini h3{
       margin:0;
       font-size: 12px;
@@ -182,7 +261,7 @@
       margin:0;
       color: rgba(20,22,30,.72);
       font-size: 13px;
-      font-weight: 500;
+      font-weight: 550;
       line-height: 1.6;
     }
 
@@ -191,8 +270,8 @@
       margin-top: 14px;
       display:none;
       opacity:0;
-      transform: translateY(10px);
-      transition: opacity .28s ease, transform .28s ease;
+      transform: translateY(14px);
+      transition: opacity .35s ease, transform .35s ease;
     }
     .scene.active{ display:block; }
     .scene.show{ opacity:1; transform: translateY(0); }
@@ -211,7 +290,7 @@
       padding:8px 10px;
       border-radius:999px;
       border:1px solid rgba(20,22,30,.12);
-      background: rgba(255,255,255,.66);
+      background: rgba(255,255,255,.70);
       color: var(--muted);
       font-size:12px;
     }
@@ -222,8 +301,13 @@
       padding: 16px;
       border-radius: var(--r);
       border:1px solid rgba(20,22,30,.14);
-      background: rgba(255,255,255,.88);
+      background: rgba(255,255,255,.90);
       min-height: 160px;
+      transition: transform .22s ease, box-shadow .22s ease;
+    }
+    .resultBox:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 18px 44px rgba(20,22,30,.10);
     }
 
     .resultTitle{
@@ -232,14 +316,14 @@
     }
     .choice{
       font-size: 22px;
-      font-weight: 900;
+      font-weight: 950;
       letter-spacing:-.2px;
       margin: 2px 0 4px;
     }
     .tag{
       font-size: 12px;
       color: rgba(20,22,30,.78);
-      background: rgba(255,255,255,.80);
+      background: rgba(255,255,255,.86);
       border: 1px solid rgba(20,22,30,.12);
       padding: 7px 10px;
       border-radius: 999px;
@@ -257,11 +341,11 @@
       padding: 12px 12px;
       border-radius: 16px;
       border:1px solid rgba(20,22,30,.14);
-      background: rgba(255,255,255,.92);
+      background: rgba(255,255,255,.94);
     }
     .time{
       min-width: 92px;
-      font-weight: 900;
+      font-weight: 950;
       color: rgba(20,22,30,.86);
       font-size: 12px;
       letter-spacing:.2px;
@@ -284,10 +368,10 @@
       position:fixed;
       inset:0;
       pointer-events:none;
-      z-index: 20;
+      z-index: 30;
     }
 
-    /* Decision overlay (highlight moment) */
+    /* Decision overlay (very visible moment) */
     #decisionOverlay{
       position:fixed;
       inset:0;
@@ -295,24 +379,42 @@
       align-items:center;
       justify-content:center;
       padding: 18px;
-      z-index: 60;
-      background: rgba(255,255,255,.62);
-      backdrop-filter: blur(10px);
+      z-index: 80;
+      background: radial-gradient(900px 600px at 50% 40%, rgba(255,255,255,.90), rgba(255,255,255,.62));
+      backdrop-filter: blur(12px);
     }
-    #decisionOverlay.show{ display:flex; animation: fadeIn .22s ease-out; }
+    #decisionOverlay.show{ display:flex; animation: fadeIn .18s ease-out; }
     @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
 
     .decisionCard{
-      width:min(680px, 92vw);
-      border-radius: 26px;
+      width:min(720px, 94vw);
+      border-radius: 28px;
       border: 1px solid rgba(20,22,30,.14);
-      background: rgba(255,255,255,.94);
-      box-shadow: 0 24px 70px rgba(20,22,30,.18);
-      padding: 18px 16px;
+      background: rgba(255,255,255,.96);
+      box-shadow: 0 30px 90px rgba(20,22,30,.22);
+      padding: 20px 18px;
       text-align:center;
-      transform: translateY(8px) scale(.985);
-      animation: pop .28s ease-out forwards;
+      transform: translateY(14px) scale(.98);
+      animation: pop .28s cubic-bezier(.2,.9,.2,1) forwards;
+      position: relative;
+      overflow:hidden;
     }
+    .decisionCard::before{
+      content:"";
+      position:absolute;
+      inset:-60%;
+      background: conic-gradient(from 200deg,
+        rgba(120,180,255,.0),
+        rgba(120,180,255,.35),
+        rgba(255,150,210,.35),
+        rgba(140,255,210,.28),
+        rgba(120,180,255,.0));
+      animation: glowSpin 4.2s linear infinite;
+      opacity:.55;
+    }
+    .decisionCard > *{ position:relative; }
+    @keyframes glowSpin{ to{ transform: rotate(360deg); } }
+
     @keyframes pop{ to{ transform: translateY(0) scale(1) } }
 
     .decisionSmall{
@@ -323,17 +425,21 @@
       margin-bottom: 8px;
     }
     .decisionBig{
-      font-size: clamp(26px, 7vw, 38px);
-      font-weight: 950;
-      letter-spacing: -0.6px;
+      font-size: clamp(30px, 7vw, 44px);
+      font-weight: 1000;
+      letter-spacing: -0.8px;
       color: rgba(20,22,30,.92);
-      margin: 6px 0 6px;
+      margin: 6px 0 8px;
+      text-shadow: 0 10px 30px rgba(20,22,30,.10);
     }
     .decisionDesc{
       font-size: 14px;
       line-height: 1.6;
-      color: rgba(20,22,30,.72);
+      color: rgba(20,22,30,.74);
       margin: 0 0 14px;
+      max-width: 62ch;
+      margin-left:auto;
+      margin-right:auto;
     }
     .decisionBtns{
       display:flex;
@@ -342,27 +448,47 @@
       flex-wrap:wrap;
     }
 
-    /* ===== Mobile optimization ===== */
+    /* focus pulse highlight after decision */
+    .pulse{
+      animation: pulse 1.15s ease-out 1;
+    }
+    @keyframes pulse{
+      0%{ box-shadow: 0 0 0 0 rgba(120,180,255,.0); transform: translateY(0); }
+      30%{ box-shadow: 0 0 0 10px rgba(120,180,255,.22); transform: translateY(-2px); }
+      100%{ box-shadow: 0 0 0 0 rgba(120,180,255,.0); transform: translateY(0); }
+    }
+
+    /* Mobile */
     @media (max-width: 860px){
       .hero{ grid-template-columns:1fr; }
       .grid2{ grid-template-columns:1fr; }
-      .chip{ display:none; } /* keeps header clean on phone */
+      .chip{ display:none; }
     }
-
     @media (max-width: 520px){
       .wrap{ padding-left: 14px; padding-right: 14px; }
       .card{ padding: 16px; }
-      .btnRow button{ flex: 1 1 100%; } /* buttons become full width */
+      .btnRow button{ flex: 1 1 100%; }
       .slot{ flex-direction: column; gap:6px; }
       .time{ min-width: 0; }
       .resultTitle{ flex-direction: column; align-items:flex-start; }
       .tag{ align-self:flex-start; }
     }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      *{ animation: none !important; transition: none !important; }
+      .blobs{ display:none; }
+    }
   </style>
 </head>
 
 <body>
-  <div class="grain"></div>
+  <div class="blobs" aria-hidden="true">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+  </div>
+  <div class="grain" aria-hidden="true"></div>
   <canvas id="confetti"></canvas>
 
   <!-- Decision overlay -->
@@ -408,7 +534,7 @@
         <div class="divider"></div>
 
         <p class="sub" style="margin:0">
-          <span style="opacity:.9;font-weight:750">MVP options for tomorrow:</span>
+          <span style="opacity:.9;font-weight:900">MVP options for tomorrow:</span>
           <span style="color:var(--muted)">Out date</span> vs <span style="color:var(--muted)">Stay-home date</span>.
           Random, fair, and a bit cinematic.
         </p>
@@ -429,7 +555,7 @@
       </div>
     </section>
 
-    <!-- Scene 1: Opening -->
+    <!-- Scene 1 -->
     <section class="scene active show" id="sceneOpening">
       <div class="card">
         <h2 style="margin:0 0 8px; font-size:18px; letter-spacing:-.2px;">Opening</h2>
@@ -441,7 +567,7 @@
       </div>
     </section>
 
-    <!-- Scene 2: Transition -->
+    <!-- Scene 2 -->
     <section class="scene" id="sceneTransition">
       <div class="card">
         <h2 style="margin:0 0 8px; font-size:18px; letter-spacing:-.2px;">Transition</h2>
@@ -456,11 +582,11 @@
       </div>
     </section>
 
-    <!-- Scene 3: Body (result) -->
+    <!-- Scene 3 -->
     <section class="scene" id="sceneResult">
       <div class="card">
         <div class="grid2">
-          <div class="resultBox">
+          <div class="resultBox" id="resultLeft">
             <div class="resultTitle">
               <div>
                 <div style="font-size:12px;color:var(--muted);letter-spacing:.25px;text-transform:uppercase;">Tomorrow’s vibe</div>
@@ -478,20 +604,18 @@
             </div>
           </div>
 
-          <div class="resultBox">
+          <div class="resultBox" id="resultRight">
             <div style="font-size:12px;color:var(--muted);letter-spacing:.25px;text-transform:uppercase;">Full Saturday plan</div>
-            <div style="margin-top:8px; color: rgba(20,22,30,.82); font-weight:900; letter-spacing:-.15px;">
+            <div style="margin-top:8px; color: rgba(20,22,30,.84); font-weight:950; letter-spacing:-.15px;">
               Sleep-in edition (start slow, end sweet)
             </div>
-            <div class="timeline" id="timeline">
-              <!-- injected -->
-            </div>
+            <div class="timeline" id="timeline"></div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Scene 4: Ending -->
+    <!-- Scene 4 -->
     <section class="scene" id="sceneEnding">
       <div class="card">
         <h2 style="margin:0 0 8px; font-size:18px; letter-spacing:-.2px;">Ending</h2>
@@ -507,13 +631,11 @@
       </div>
     </section>
 
-    <footer>
-      Built with love + a tiny bit of randomness. You can extend this with more options later.
-    </footer>
+    <footer>Built with love + a tiny bit of randomness.</footer>
   </div>
 
   <script>
-    // ====== Helpers ======
+    // ===== Helpers =====
     const $ = (id) => document.getElementById(id);
     const scenes = ["sceneOpening","sceneTransition","sceneResult","sceneEnding"];
 
@@ -537,7 +659,26 @@
     }
     $("todayText").textContent = "Today is " + formatToday();
 
-    // ====== MVP Options ======
+    // Button ripple (visible interaction)
+    function ripple(btn, e){
+      const rect = btn.getBoundingClientRect();
+      const x = (e?.clientX ?? (rect.left + rect.width/2)) - rect.left;
+      const y = (e?.clientY ?? (rect.top + rect.height/2)) - rect.top;
+      btn.style.setProperty("--rx", x + "px");
+      btn.style.setProperty("--ry", y + "px");
+      btn.classList.remove("ripple");
+      // force reflow
+      void btn.offsetWidth;
+      btn.classList.add("ripple");
+      setTimeout(()=> btn.classList.remove("ripple"), 520);
+    }
+
+    document.addEventListener("click", (e)=>{
+      const btn = e.target.closest("button");
+      if(btn) ripple(btn, e);
+    });
+
+    // ===== Options =====
     const OPTIONS = [
       {
         key: "out",
@@ -574,8 +715,7 @@
     ];
 
     function randomPick(){
-      const i = Math.floor(Math.random() * OPTIONS.length);
-      return OPTIONS[i];
+      return OPTIONS[Math.floor(Math.random() * OPTIONS.length)];
     }
 
     function setPlan(opt){
@@ -613,7 +753,7 @@
       }
     }
 
-    // ====== Confetti (lightweight) ======
+    // ===== Confetti (more visible on desktop) =====
     const canvas = $("confetti");
     const ctx = canvas.getContext("2d");
     let confetti = [];
@@ -627,31 +767,31 @@
     resize();
 
     const confettiPalette = [
-      "rgba(120,180,255,.85)",   // blue
-      "rgba(255,150,210,.85)",   // pink
-      "rgba(140,255,210,.85)",   // mint
-      "rgba(255,210,120,.85)"    // warm yellow
+      "rgba(120,180,255,.95)",
+      "rgba(255,150,210,.95)",
+      "rgba(140,255,210,.92)",
+      "rgba(255,210,120,.95)"
     ];
 
     function launchConfetti(){
       confetti = [];
-      const count = 110;
+      const count = Math.min(220, Math.floor(window.innerWidth * 0.25));
       for(let i=0;i<count;i++){
         confetti.push({
           x: Math.random()*canvas.width,
-          y: -20 - Math.random()*canvas.height*0.2,
-          r: 2 + Math.random()*4,
-          vx: -1.2 + Math.random()*2.4,
-          vy: 2.2 + Math.random()*4.2,
+          y: -20 - Math.random()*canvas.height*0.15,
+          r: 2 + Math.random()*5,
+          vx: -1.5 + Math.random()*3.0,
+          vy: 2.6 + Math.random()*5.2,
           a: Math.random()*Math.PI*2,
-          va: -0.2 + Math.random()*0.4,
-          life: 70 + Math.random()*50,
+          va: -0.25 + Math.random()*0.5,
+          life: 90 + Math.random()*70,
           c: confettiPalette[(Math.random()*confettiPalette.length)|0]
         });
       }
       confettiOn = true;
       requestAnimationFrame(tickConfetti);
-      setTimeout(()=> confettiOn = false, 1400);
+      setTimeout(()=> confettiOn = false, 1700);
     }
 
     function tickConfetti(){
@@ -663,29 +803,27 @@
         p.x += p.vx;
         p.y += p.vy;
         p.a += p.va;
-        p.vy += 0.03;
+        p.vy += 0.035;
 
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate(p.a);
-        ctx.globalAlpha = Math.max(0, Math.min(1, p.life/120));
+        ctx.globalAlpha = Math.max(0, Math.min(1, p.life/160));
         ctx.fillStyle = p.c;
-        ctx.fillRect(-p.r, -p.r/2, p.r*2.2, p.r);
+        ctx.fillRect(-p.r, -p.r/2, p.r*2.4, p.r);
         ctx.restore();
       }
       if(confettiOn || confetti.length>0) requestAnimationFrame(tickConfetti);
     }
 
-    // ====== Decision overlay ======
+    // ===== Decision overlay =====
     function openDecisionOverlay(opt){
       $("decisionBigText").textContent = opt.name;
       $("decisionDescText").textContent = opt.desc;
-
       const overlay = $("decisionOverlay");
       overlay.classList.add("show");
       overlay.setAttribute("aria-hidden","false");
-
-      if (navigator.vibrate) navigator.vibrate(25);
+      if (navigator.vibrate) navigator.vibrate([18, 25, 18]);
     }
 
     function closeDecisionOverlay(){
@@ -694,7 +832,7 @@
       overlay.setAttribute("aria-hidden","true");
     }
 
-    // ====== Wiring ======
+    // ===== Wiring =====
     let current = loadChoice();
 
     if(current){
@@ -724,9 +862,12 @@
     $("decisionContinue").addEventListener("click", ()=>{
       closeDecisionOverlay();
       showScene("sceneResult");
-      setTimeout(()=> {
-        $("sceneResult")?.scrollIntoView({behavior:"smooth", block:"start"});
-      }, 80);
+      // highlight result panel
+      const left = $("resultLeft");
+      left.classList.remove("pulse");
+      void left.offsetWidth;
+      left.classList.add("pulse");
+      setTimeout(()=> left.classList.remove("pulse"), 1200);
     });
 
     $("decisionReroll").addEventListener("click", ()=>{
@@ -751,9 +892,7 @@
       showScene("sceneEnding");
     });
 
-    $("againBtn").addEventListener("click", ()=>{
-      showScene("sceneTransition");
-    });
+    $("againBtn").addEventListener("click", ()=> showScene("sceneTransition"));
 
     $("resetBtn").addEventListener("click", ()=>{
       localStorage.removeItem("dateDecider:lastChoice");
@@ -780,15 +919,6 @@
         $("endingPill").textContent = "Copy blocked by browser. Select text manually if needed.";
       }
     });
-
-    // preload saved choice silently
-    setTimeout(()=>{
-      const saved = loadChoice();
-      if(saved){
-        current = saved;
-        setPlan(current);
-      }
-    }, 200);
   </script>
 </body>
 </html>
