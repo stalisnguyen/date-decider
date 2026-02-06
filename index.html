@@ -1,77 +1,464 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Date Decider</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-        header {
-            background: #35424a;
-            color: #ffffff;
-            padding: 10px 20px;
-            text-align: center;
-        }
-        .container {
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 20px;
-            background: #ffffff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .tab {
-            display: inline-block;
-            margin: 20px 10px;
-            padding: 10px 15px;
-            border-radius: 5px;
-            background: #eaeaea;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        .tab:hover {
-            background: #d4d4d4;
-        }
-        .active {
-            background: #35424a;
-            color: #fff;
-        }
-        @media screen and (max-width: 600px) {
-            .container {
-                padding: 10px;
-            }
-            header {
-                font-size: 1.2em;
-            }
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>The Ritual</title>
+
+  <style>
+    :root {
+      --p: #c2d1ff;
+      --pink: rgba(255, 209, 232, 0.10);
+      --blue: rgba(194, 209, 255, 0.12);
+      --mint: rgba(160, 255, 220, 0.08);
+
+      --bg: #050507;
+      --glass: rgba(255, 255, 255, 0.035);
+      --glass-2: rgba(255, 255, 255, 0.02);
+      --glass-stroke: rgba(255, 255, 255, 0.12);
+
+      --text: #ffffff;
+      --text-soft: rgba(255, 255, 255, 0.45);
+
+      --cardR: 44px;
+      --shadow: 0 40px 110px rgba(0,0,0,0.65);
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, "SF Pro Display", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100dvh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== Background: mesh + moving blobs (full screen) ===== */
+    .bg {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .mesh {
+      position: absolute;
+      inset: -30%;
+      background:
+        radial-gradient(circle at 20% 20%, var(--blue) 0%, transparent 45%),
+        radial-gradient(circle at 80% 80%, var(--pink) 0%, transparent 45%),
+        radial-gradient(circle at 45% 95%, var(--mint) 0%, transparent 50%);
+      filter: blur(70px);
+      opacity: 1;
+      animation: meshDrift 18s var(--ease) infinite alternate;
+    }
+    @keyframes meshDrift {
+      from { transform: translate3d(-2%, 1%, 0) scale(1); }
+      to   { transform: translate3d(2%, -1%, 0) scale(1.03); }
+    }
+
+    .blob {
+      position: absolute;
+      width: 520px;
+      height: 520px;
+      border-radius: 999px;
+      filter: blur(65px);
+      opacity: 0.55;
+      mix-blend-mode: screen;
+      transform: translate3d(0,0,0);
+      animation: blobRoam 22s var(--ease) infinite alternate;
+    }
+    .b1 { background: rgba(194,209,255,0.20); left: -10%; top: -15%; animation-duration: 26s; }
+    .b2 { background: rgba(255,209,232,0.18); right: -12%; bottom: -18%; animation-duration: 28s; animation-delay: -8s; }
+    .b3 { background: rgba(160,255,220,0.14); left: 18%; bottom: -22%; animation-duration: 30s; animation-delay: -14s; }
+
+    @keyframes blobRoam {
+      from { transform: translate3d(0,0,0) scale(1); }
+      to   { transform: translate3d(14%, -10%, 0) scale(1.08); }
+    }
+
+    /* ===== Header ===== */
+    header {
+      padding: calc(env(safe-area-inset-top) + 18px) 26px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .hdr-title {
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--text-soft);
+      user-select: none;
+    }
+
+    .audio-trigger {
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      border: 1px solid var(--glass-stroke);
+      padding: 8px 14px;
+      border-radius: 100px;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 800;
+      backdrop-filter: blur(12px);
+      color: var(--p);
+      user-select: none;
+    }
+
+    /* ===== Main ===== */
+    main {
+      flex: 1;
+      position: relative;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+    }
+
+    /* Locked container — consistent across tabs */
+    .ritual-container {
+      width: 100%;
+      max-width: 390px;
+      height: min(520px, calc(100dvh - 170px)); /* stable but adapts */
+      position: relative;
+    }
+
+    /* ===== Tabs: always present, transition via opacity/transform ===== */
+    .tab-view {
+      position: absolute;
+      inset: 0;
+      display: flex;            /* IMPORTANT: always flex */
+      opacity: 0;
+      transform: translateY(14px) scale(0.985);
+      filter: blur(6px);
+      pointer-events: none;
+      transition:
+        opacity 0.55s var(--ease),
+        transform 0.65s var(--ease),
+        filter 0.65s var(--ease);
+      will-change: opacity, transform, filter;
+    }
+
+    .tab-view.active {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0px);
+      pointer-events: auto;
+    }
+
+    .glass-inner {
+      background: linear-gradient(145deg, rgba(255,255,255,0.065) 0%, rgba(255,255,255,0.015) 100%);
+      backdrop-filter: blur(50px);
+      border: 1px solid var(--glass-stroke);
+      border-radius: var(--cardR);
+      padding: 40px 25px;
+      text-align: center;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* subtle inner sheen */
+    .glass-inner::before{
+      content:"";
+      position:absolute;
+      inset:-60%;
+      background: conic-gradient(from 210deg,
+        rgba(255,255,255,0),
+        rgba(255,255,255,0.05),
+        rgba(194,209,255,0.05),
+        rgba(255,209,232,0.05),
+        rgba(255,255,255,0));
+      opacity: .55;
+      animation: sheen 7s linear infinite;
+    }
+    @keyframes sheen { to{ transform: rotate(360deg);} }
+    .glass-inner > *{ position:relative; }
+
+    h1 {
+      font-size: 30px;
+      font-weight: 650;
+      margin: 0 0 10px;
+      letter-spacing: -1.2px;
+    }
+    p {
+      font-size: 16px;
+      color: var(--text-soft);
+      line-height: 1.55;
+      margin: 0 0 28px;
+      max-width: 92%;
+    }
+
+    .btn {
+      background: #fff;
+      color: #000;
+      border: none;
+      padding: 18px 18px;
+      border-radius: 22px;
+      font-size: 16px;
+      font-weight: 850;
+      width: 100%;
+      cursor: pointer;
+      transition: transform 0.18s var(--ease), opacity 0.18s var(--ease);
+    }
+    .btn:active { transform: scale(0.965); opacity: 0.92; }
+    .btn-outline {
+      background: transparent;
+      color: #fff;
+      border: 1px solid var(--glass-stroke);
+      margin-top: 10px;
+    }
+
+    /* Compact Timeline */
+    .compact-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .item-time {
+      font-size: 10px;
+      font-weight: 900;
+      color: var(--p);
+      letter-spacing: 0.6px;
+    }
+    .item-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.92);
+    }
+
+    /* Dots nav */
+    nav {
+      position: fixed;
+      bottom: calc(env(safe-area-inset-bottom) + 26px);
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 100;
+      user-select: none;
+    }
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      transition: 0.5s var(--ease);
+    }
+    .dot.active {
+      background: var(--p);
+      width: 22px;
+      border-radius: 10px;
+    }
+
+    /* Decision phase animation */
+    @keyframes pulse-glow {
+      0%   { border-color: var(--glass-stroke); box-shadow: var(--shadow); }
+      50%  { border-color: rgba(194,209,255,0.55); box-shadow: 0 40px 110px rgba(0,0,0,0.65), 0 0 38px rgba(194,209,255,0.12); }
+      100% { border-color: var(--glass-stroke); box-shadow: var(--shadow); }
+    }
+    .thinking .glass-inner { animation: pulse-glow 1.35s infinite; }
+
+    /* Mobile small: keep centered, less padding */
+    @media (max-height: 740px){
+      .glass-inner{ padding: 34px 22px; }
+      h1{ font-size: 28px; }
+      p{ font-size: 15px; margin-bottom: 22px; }
+    }
+  </style>
 </head>
+
 <body>
-    <header>
-        <h1>Date Decider</h1>
-    </header>
-    <div class="container">
-        <div class="tab active">Tab 1</div>
-        <div class="tab">Tab 2</div>
-        <div class="tab">Tab 3</div>
-        <div id="content">
-            <p>Content goes here...</p>
+  <div class="bg" aria-hidden="true">
+    <div class="mesh"></div>
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+  </div>
+
+  <header>
+    <div class="hdr-title">THE RITUAL</div>
+    <div class="audio-trigger" id="audioBtn" onclick="toggleAudio()">Sound Off</div>
+  </header>
+
+  <main>
+    <div class="ritual-container" id="ritualCard">
+
+      <div id="view-story" class="tab-view active">
+        <div class="glass-inner">
+          <div style="font-size: 38px; margin-bottom: 15px;">🌑</div>
+          <h1>The Beginning</h1>
+          <p>Tomorrow is an open door. Step away from the noise and let the day unfold.</p>
+          <button class="btn" onclick="next('vibe')">Begin the ritual</button>
         </div>
+      </div>
+
+      <div id="view-vibe" class="tab-view">
+        <div class="glass-inner">
+          <div style="font-size: 38px; margin-bottom: 15px;">✨</div>
+          <h1>Stillness</h1>
+          <p>We are leaving the plans behind. Take a breath and trust the rhythm of the ritual.</p>
+          <button class="btn" onclick="next('decide')">Step forward</button>
+          <button class="btn btn-outline" onclick="next('story')">Back</button>
+        </div>
+      </div>
+
+      <div id="view-decide" class="tab-view">
+        <div class="glass-inner">
+          <div id="roll-ui">
+            <div style="font-size: 38px; margin-bottom: 15px;">🔮</div>
+            <h1>Invite Fate</h1>
+            <p>The universe will now decide the frequency for your Saturday.</p>
+            <button class="btn" onclick="startRolling()">Consult the stars</button>
+            <button class="btn btn-outline" onclick="next('vibe')">Back</button>
+          </div>
+
+          <div id="result-ui" style="display:none;">
+            <div style="font-size: 10px; font-weight: 900; color: var(--p); letter-spacing: 2px; margin-bottom: 10px;">VIBE SELECTED</div>
+            <h1 id="res-title">...</h1>
+            <p id="res-desc">...</p>
+            <button class="btn" onclick="next('plan')">Reveal Schedule</button>
+            <button class="btn btn-outline" onclick="startRolling()">Reroll fate</button>
+            <button class="btn btn-outline" onclick="next('vibe')">Back</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="view-plan" class="tab-view">
+        <div class="glass-inner" style="justify-content:flex-start; padding-top: 45px;">
+          <h2 id="plan-name" style="margin: 0 0 22px; font-size: 24px; font-weight: 750;">The Path</h2>
+          <div class="compact-list" id="timeline"></div>
+          <button class="btn btn-outline" style="margin-top:auto;" onclick="resetRitual()">Reset ritual</button>
+        </div>
+      </div>
+
     </div>
-    <script>
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                // Load content based on active tab
-            });
-        });
-    </script>
+  </main>
+
+  <nav>
+    <div class="dot active"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </nav>
+
+  <script>
+    const OPTIONS = [
+      { name: "Urban Bloom", icon: "🏙️", d: "City lights and shared motion.", s: [["10:30", "Slow Coffee"], ["12:30", "Urban Brunch"], ["15:00", "Gallery Walk"], ["19:30", "Night Dinner"]] },
+      { name: "Velvet Home", icon: "🏠", d: "Comfort and soft light.", s: [["11:00", "Silk Morning"], ["13:30", "Co-op Play"], ["16:30", "Quiet Nap"], ["20:00", "Candlelight"]] }
+    ];
+
+    let current = null;
+
+    // ===== Audio (unchanged core) =====
+    let audioCtx, gainNode, osc1, osc2;
+
+    function initAudio() {
+      if (audioCtx) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      gainNode = audioCtx.createGain();
+      gainNode.connect(audioCtx.destination);
+      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+    }
+
+    function toggleAudio() {
+      initAudio();
+      const btn = document.getElementById('audioBtn');
+
+      if (osc1) {
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+        setTimeout(() => { try{osc1.stop(); osc2.stop();}catch(e){} osc1 = null; osc2 = null; }, 900);
+        btn.textContent = "Sound Off";
+      } else {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        osc1 = audioCtx.createOscillator(); osc2 = audioCtx.createOscillator();
+        osc1.frequency.setValueAtTime(196.0, audioCtx.currentTime);
+        osc2.frequency.setValueAtTime(246.94, audioCtx.currentTime);
+        osc1.connect(gainNode); osc2.connect(gainNode);
+        osc1.start(); osc2.start();
+        gainNode.gain.exponentialRampToValueAtTime(0.03, audioCtx.currentTime + 1.4);
+        btn.textContent = "Sound On";
+      }
+    }
+
+    // ===== Tabs =====
+    const order = ['story','vibe','decide','plan'];
+
+    function next(id){
+      // activate tab
+      document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+      const target = document.getElementById('view-' + id);
+      target.classList.add('active');
+
+      // dots
+      const dots = document.querySelectorAll('.dot');
+      dots.forEach(d => d.classList.remove('active'));
+      dots[order.indexOf(id)].classList.add('active');
+
+      // plan render
+      if (id === 'plan' && current) renderPlan();
+    }
+
+    function startRolling(){
+      const card = document.getElementById('ritualCard');
+      card.classList.add('thinking');
+
+      document.getElementById('roll-ui').style.display = 'none';
+      document.getElementById('result-ui').style.display = 'none';
+
+      setTimeout(() => {
+        card.classList.remove('thinking');
+        current = OPTIONS[Math.floor(Math.random() * OPTIONS.length)];
+        document.getElementById('res-title').textContent = current.icon + " " + current.name;
+        document.getElementById('res-desc').textContent = current.d;
+        document.getElementById('result-ui').style.display = 'block';
+      }, 1600);
+    }
+
+    function renderPlan(){
+      document.getElementById('plan-name').textContent = current.icon + " " + current.name;
+      document.getElementById('timeline').innerHTML = current.s.map(i => `
+        <div class="list-item">
+          <div class="item-time">${i[0]}</div>
+          <div class="item-text">${i[1]}</div>
+        </div>
+      `).join('');
+    }
+
+    function resetRitual(){
+      // reset to initial tab, clear state
+      current = null;
+      document.getElementById('roll-ui').style.display = 'block';
+      document.getElementById('result-ui').style.display = 'none';
+      next('story');
+    }
+  </script>
 </body>
 </html>
