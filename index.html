@@ -570,6 +570,12 @@
       requestAnimationFrame(tickConfetti);
       setTimeout(()=> confettiOn = false, 1400);
     }
+    const confettiPalette = [
+      "rgba(120,180,255,.85)",   // blue
+      "rgba(255,150,210,.85)",   // pink
+      "rgba(140,255,210,.85)",   // mint
+      "rgba(255,210,120,.85)"    // warm yellow
+];
 
     function tickConfetti(){
       if(!confettiOn && confetti.length===0) return;
