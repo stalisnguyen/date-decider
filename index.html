@@ -8,347 +8,722 @@
 <title>Saturday Decider</title>
 
 <style>
-:root{
-  /* ===== base ===== */
-  --text:#0f172a;
-  --muted:rgba(15,23,42,.55);
+  :root{
+    --text:#0b1220;
+    --muted: rgba(11,18,32,.62);
 
-  --glass: rgba(255,255,255,.78);
-  --glass-strong: rgba(255,255,255,.88);
-  --stroke: rgba(15,23,42,.12);
-  --shadow: 0 22px 70px rgba(15,23,42,.18);
+    /* Glass tuning */
+    --glassA: rgba(255,255,255,.78);
+    --glassB: rgba(255,255,255,.62);
+    --stroke: rgba(255,255,255,.28);
+    --stroke2: rgba(11,18,32,.12);
+    --shadow: 0 26px 80px rgba(3, 10, 24, .22);
 
-  --r:28px;
-  --ease:cubic-bezier(.16,1,.3,1);
+    --r: 30px;
+    --ease: cubic-bezier(.16,1,.3,1);
 
-  /* ===== gradients per tab ===== */
-  --g0a:#3b82f6; --g0b:#60a5fa;     /* deep blue */
-  --g1a:#6366f1; --g1b:#8b5cf6;     /* indigo */
-  --g2a:#22c55e; --g2b:#86efac;     /* green */
-  --g3a:#ec4899; --g3b:#f472b6;     /* pink */
-  --g4a:#14b8a6; --g4b:#67e8f9;     /* teal */
-}
+    /* Button */
+    --btnA:#0ea5e9;
+    --btnB:#2563eb;
+    --btnText:#ffffff;
 
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
+    /* Tab gradients (bold) */
+    --t0a:#0b4fe3; --t0b:#45b8ff;
+    --t1a:#6d28d9; --t1b:#1d4ed8;
+    --t2a:#059669; --t2b:#22c55e;
+    --t3a:#db2777; --t3b:#fb7185;
+    --t4a:#0ea5e9; --t4b:#14b8a6;
+  }
 
-body{
-  margin:0;
-  font-family:-apple-system, system-ui, sans-serif;
-  color:var(--text);
-  overflow:hidden;
-  background:linear-gradient(135deg,var(--g0a),var(--g0b));
-  transition:background .9s var(--ease);
-}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
 
-/* ===== header ===== */
-header{
-  padding:calc(env(safe-area-inset-top) + 18px) 20px 10px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-.hdr-left{display:flex;flex-direction:column;gap:2px}
-.hdr-title{font-weight:800;font-size:13px;letter-spacing:.4px;color:#fff}
-.hdr-sub{font-size:12px;color:rgba(255,255,255,.75)}
-.hdr-right{
-  font-size:12px;
-  font-weight:800;
-  color:#1e40af;
-  position:relative;
-}
-.hdr-right::after{
-  content:"";
-  position:absolute;
-  inset:-4px -8px;
-  background:linear-gradient(135deg,rgba(59,130,246,.25),rgba(96,165,250,.25));
-  border-radius:999px;
-  z-index:-1;
-  filter:blur(6px);
-  animation:pulse 3s ease-in-out infinite;
-}
-@keyframes pulse{
-  0%,100%{opacity:.6}
-  50%{opacity:1}
-}
+  body{
+    margin:0;
+    font-family: -apple-system, system-ui, "SF Pro Display", Segoe UI, Roboto, Arial, sans-serif;
+    color: var(--text);
+    overflow:hidden;
+    background: linear-gradient(135deg, var(--t0a), var(--t0b));
+    transition: background .9s var(--ease);
+  }
 
-/* ===== main ===== */
-main{
-  height:calc(100% - 82px);
-  display:grid;
-  place-items:center;
-  padding:14px;
-}
+  /* ===== Animated background blobs ===== */
+  .bg{
+    position:fixed; inset:0; z-index:-2; overflow:hidden;
+  }
+  .blob{
+    position:absolute;
+    width: 520px; height: 520px;
+    border-radius: 999px;
+    filter: blur(48px);
+    opacity: .55;
+    transform: translate3d(0,0,0);
+    animation: float 16s var(--ease) infinite alternate;
+  }
+  .b1{ left:-180px; top:-160px; background: rgba(255,255,255,.22); }
+  .b2{ right:-220px; bottom:-220px; background: rgba(255,255,255,.18); animation-duration: 18s; }
+  .b3{ left: 10%; bottom:-240px; background: rgba(255,255,255,.14); animation-duration: 20s; }
+  @keyframes float{
+    from{ transform: translate3d(-10px, 0px, 0) scale(1); }
+    to  { transform: translate3d(80px, 50px, 0) scale(1.08); }
+  }
 
-.container{
-  width:100%;
-  max-width:390px;
-  height:100%;
-  position:relative;
-}
+  /* ===== Noise overlay (makes glass feel real) ===== */
+  .noise{
+    position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background-image:url('data:image/svg+xml;utf8,\
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220">\
+<filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" stitchTiles="stitch"/></filter>\
+<rect width="220" height="220" filter="url(%23n)" opacity=".38"/></svg>');
+    mix-blend-mode: overlay;
+    opacity:.085;
+  }
 
-/* ===== tabs ===== */
-.tab{
-  position:absolute;
-  inset:0;
-  display:flex;
-  opacity:0;
-  transform:translateY(20px);
-  pointer-events:none;
-  transition:opacity .45s var(--ease), transform .55s var(--ease);
-}
-.tab.active{
-  opacity:1;
-  transform:translateY(0);
-  pointer-events:auto;
-}
+  /* ===== Header ===== */
+  header{
+    padding: calc(env(safe-area-inset-top) + 18px) 18px 10px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap: 12px;
+  }
+  .hdr-left{display:flex;flex-direction:column;gap:4px}
+  .hdr-title{
+    font-weight: 900;
+    letter-spacing: .5px;
+    color: rgba(255,255,255,.95);
+    font-size: 13px;
+    text-transform: uppercase;
+  }
+  .hdr-sub{
+    font-size: 12px;
+    color: rgba(255,255,255,.78);
+  }
 
-/* ===== glass card ===== */
-.card{
-  background:
-    linear-gradient(180deg, var(--glass-strong), var(--glass));
-  border:1px solid var(--stroke);
-  border-radius:var(--r);
-  box-shadow:var(--shadow);
-  width:100%;
-  height:100%;
-  padding:26px 22px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  backdrop-filter:blur(18px);
-}
+  /* Only for my Pastel — deep blue + animated shine */
+  .hdr-right{
+    font-size:12px;
+    font-weight: 900;
+    letter-spacing: .2px;
+    color: #0b3aa6;
+    position:relative;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.72);
+    border: 1px solid rgba(255,255,255,.55);
+    box-shadow: 0 14px 40px rgba(0,0,0,.18);
+    overflow:hidden;
+  }
+  .hdr-right::before{
+    content:"";
+    position:absolute; inset:-40%;
+    background: conic-gradient(from 180deg,
+      rgba(255,255,255,0),
+      rgba(255,255,255,.8),
+      rgba(255,255,255,0)
+    );
+    animation: shine 2.8s linear infinite;
+    opacity:.55;
+  }
+  .hdr-right span{ position:relative; z-index:1; }
+  @keyframes shine{ to{ transform: rotate(360deg); } }
 
-/* ===== text ===== */
-h1{
-  font-size:28px;
-  letter-spacing:-.7px;
-  margin:0 0 10px;
-}
-p{
-  font-size:15px;
-  line-height:1.65;
-  color:var(--muted);
-  margin:0 0 22px;
-  text-align:center;
-}
+  /* ===== Main layout ===== */
+  main{
+    height: calc(100% - 82px);
+    padding: 14px;
+    display:grid;
+    place-items:center;
+  }
+  .container{
+    width: 100%;
+    max-width: 400px;
+    height: 100%;
+    position: relative;
+  }
 
-/* ===== buttons ===== */
-.btn{
-  width:100%;
-  padding:15px;
-  border-radius:18px;
-  border:none;
-  font-size:15px;
-  font-weight:800;
-  cursor:pointer;
-  background:linear-gradient(135deg,#1e293b,#334155);
-  color:#fff;
-  transition:transform .15s var(--ease), opacity .15s;
-}
-.btn:active{transform:scale(.97)}
-.btn-outline{
-  background:rgba(255,255,255,.55);
-  color:var(--text);
-  border:1px solid var(--stroke);
-  margin-top:10px;
-}
+  /* ===== Tabs ===== */
+  .tab{
+    position:absolute; inset:0;
+    display:flex;
+    opacity:0;
+    transform: translateY(18px) scale(.98);
+    pointer-events:none;
+    transition: opacity .5s var(--ease), transform .6s var(--ease);
+  }
+  .tab.active{
+    opacity:1;
+    transform: translateY(0) scale(1);
+    pointer-events:auto;
+  }
 
-/* ===== plan ===== */
-.plan-wrap{width:100%;height:100%;display:flex;flex-direction:column}
-.plan-title{font-size:22px;font-weight:900;margin-bottom:6px}
-.plan-sub{font-size:13px;color:var(--muted);margin-bottom:14px}
-.timeline{
-  flex:1;
-  overflow-y:auto;
-  padding-right:4px;
-}
-.slot{
-  display:flex;
-  gap:12px;
-  padding:12px 14px;
-  border-radius:16px;
-  border:1px solid var(--stroke);
-  background:rgba(255,255,255,.95);
-  margin-bottom:10px;
-}
-.time{font-size:11px;font-weight:900;min-width:62px}
-.act{font-size:13px;line-height:1.5}
+  /* ===== Glass card (stronger, modern) ===== */
+  .card{
+    width:100%;
+    height:100%;
+    border-radius: var(--r);
+    padding: 26px 22px;
+    background:
+      linear-gradient(180deg, var(--glassA), var(--glassB));
+    border: 1px solid var(--stroke);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(22px) saturate(1.25);
+    -webkit-backdrop-filter: blur(22px) saturate(1.25);
+    position: relative;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+  }
+  /* subtle inner highlight + edge gradient */
+  .card::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(900px 400px at 20% 10%, rgba(255,255,255,.55), transparent 55%),
+      radial-gradient(700px 380px at 90% 30%, rgba(255,255,255,.35), transparent 55%);
+    opacity:.35;
+    pointer-events:none;
+  }
+  .card::after{
+    content:"";
+    position:absolute; inset: 0;
+    border-radius: var(--r);
+    border: 1px solid rgba(11,18,32,.10);
+    pointer-events:none;
+  }
 
-/* ===== dots ===== */
-nav{
-  position:fixed;
-  bottom:calc(env(safe-area-inset-bottom) + 20px);
-  left:50%;
-  transform:translateX(-50%);
-  display:flex;
-  gap:10px;
-}
-.dot{
-  width:6px;height:6px;border-radius:50%;
-  background:rgba(255,255,255,.5);
-  transition:.4s;
-}
-.dot.active{
-  width:22px;border-radius:10px;background:#fff;
-}
+  h1{
+    margin:0 0 10px;
+    font-size: 28px;
+    letter-spacing: -0.8px;
+    text-align:center;
+  }
+  p{
+    margin:0 0 22px;
+    font-size: 15px;
+    line-height:1.7;
+    color: var(--muted);
+    text-align:center;
+    max-width: 32ch;
+  }
+
+  /* ===== Buttons (consistent + shimmer + ripple) ===== */
+  .btnRow{ width:100%; display:flex; flex-direction:column; gap:10px; }
+  .btn{
+    width:100%;
+    padding: 15px 16px;
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,.35);
+    background: linear-gradient(135deg, var(--btnA), var(--btnB));
+    color: var(--btnText);
+    font-weight: 900;
+    font-size: 15px;
+    cursor:pointer;
+    position:relative;
+    overflow:hidden;
+    box-shadow: 0 18px 40px rgba(2, 30, 90, .25);
+    transition: transform .15s var(--ease), filter .2s var(--ease);
+  }
+  .btn:hover{ filter: brightness(1.03); }
+  .btn:active{ transform: scale(.98); }
+
+  /* shimmer */
+  .btn::before{
+    content:"";
+    position:absolute; inset:-40%;
+    background: linear-gradient(90deg,
+      rgba(255,255,255,0),
+      rgba(255,255,255,.55),
+      rgba(255,255,255,0)
+    );
+    transform: translateX(-60%);
+    animation: shimmer 3.2s var(--ease) infinite;
+    opacity:.6;
+  }
+  @keyframes shimmer{
+    0%{ transform: translateX(-70%) rotate(12deg); }
+    55%{ transform: translateX(70%) rotate(12deg); }
+    100%{ transform: translateX(70%) rotate(12deg); }
+  }
+
+  /* ripple on click */
+  .ripple{
+    position:absolute; border-radius:50%;
+    transform: scale(0);
+    animation: ripple .6s linear;
+    background: rgba(255,255,255,.55);
+    pointer-events:none;
+  }
+  @keyframes ripple{
+    to{ transform: scale(18); opacity:0; }
+  }
+
+  .btn-ghost{
+    width:100%;
+    padding: 14px 16px;
+    border-radius: 18px;
+    background: rgba(255,255,255,.62);
+    border: 1px solid rgba(11,18,32,.10);
+    color: rgba(11,18,32,.92);
+    font-weight: 900;
+    font-size: 14px;
+    cursor:pointer;
+    transition: transform .15s var(--ease);
+  }
+  .btn-ghost:active{ transform: scale(.98); }
+
+  /* ===== Plan (scrollable) ===== */
+  .plan-wrap{
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    justify-content:flex-start;
+  }
+  .planTop{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom: 10px;
+    position:relative;
+    z-index:1;
+  }
+  .planTitle{
+    font-size: 22px;
+    font-weight: 1000;
+    margin:0;
+    letter-spacing:-.4px;
+  }
+  .planMeta{
+    font-size: 12px;
+    color: var(--muted);
+    margin: 2px 0 0;
+  }
+  .toast{
+    position:absolute;
+    left:50%;
+    top: 12px;
+    transform: translateX(-50%) translateY(-10px);
+    background: rgba(255,255,255,.85);
+    border: 1px solid rgba(11,18,32,.10);
+    color: rgba(11,18,32,.92);
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 900;
+    opacity: 0;
+    transition: opacity .35s var(--ease), transform .35s var(--ease);
+    z-index:3;
+  }
+  .toast.show{
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .timeline{
+    flex:1;
+    overflow-y:auto;
+    padding-right: 4px;
+    margin-top: 8px;
+    position:relative;
+    z-index:1;
+  }
+  .slot{
+    display:flex;
+    gap:12px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: rgba(255,255,255,.92);
+    border: 1px solid rgba(11,18,32,.10);
+    box-shadow: 0 10px 24px rgba(3,10,24,.06);
+    margin-bottom: 10px;
+  }
+  .time{
+    min-width: 70px;
+    font-weight: 1000;
+    font-size: 11px;
+    color: rgba(11,18,32,.88);
+  }
+  .act{
+    font-size: 13px;
+    color: rgba(11,18,32,.78);
+    line-height:1.5;
+  }
+
+  /* ===== Nav dots ===== */
+  nav{
+    position:fixed;
+    bottom:calc(env(safe-area-inset-bottom) + 18px);
+    left:50%;
+    transform: translateX(-50%);
+    display:flex;
+    gap:10px;
+    z-index:5;
+  }
+  .dot{
+    width:6px; height:6px; border-radius:50%;
+    background: rgba(255,255,255,.55);
+    transition:.4s;
+  }
+  .dot.active{
+    width:24px;
+    border-radius: 10px;
+    background:#fff;
+  }
+
+  /* ===== FX canvas ===== */
+  canvas#fx{
+    position:fixed; inset:0;
+    pointer-events:none;
+    z-index: 50;
+  }
 </style>
 </head>
 
 <body>
-
-<header>
-  <div class="hdr-left">
-    <div class="hdr-title">Saturday Decider</div>
-    <div class="hdr-sub" id="dateTxt"></div>
+  <div class="bg" aria-hidden="true">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
   </div>
-  <div class="hdr-right">Only for my Pastel</div>
-</header>
+  <div class="noise" aria-hidden="true"></div>
+  <canvas id="fx"></canvas>
 
-<main>
-<div class="container">
+  <header>
+    <div class="hdr-left">
+      <div class="hdr-title">Saturday Decider</div>
+      <div class="hdr-sub" id="dateTxt"></div>
+    </div>
+    <div class="hdr-right"><span>Only for my Pastel</span></div>
+  </header>
 
-<!-- TAB 0: FLIRTY -->
-<section class="tab active" id="t0">
-  <div class="card">
-    <div style="font-size:38px;margin-bottom:12px;">💙</div>
-    <h1>Hey you.</h1>
-    <p>
-      Tomorrow is Saturday.  
-      You don’t need to wake up early.  
-      You just need to be mine for the day.
-    </p>
-    <button class="btn" onclick="go(1)">Come here</button>
-  </div>
-</section>
+  <main>
+    <div class="container">
+      <!-- TAB 0 -->
+      <section class="tab active" id="t0">
+        <div class="card">
+          <div style="font-size:38px;margin-bottom:12px;position:relative;z-index:1;">💙</div>
+          <h1 style="position:relative;z-index:1;">Hey baby.</h1>
+          <p style="position:relative;z-index:1;">
+            Tomorrow is Saturday.  
+            Sleep in. Say “hi” slowly.  
+            Then let’s pick a vibe together.
+          </p>
+          <div class="btnRow" style="position:relative;z-index:1;">
+            <button class="btn" data-ripple onclick="go(1, true)">Come closer</button>
+          </div>
+        </div>
+      </section>
 
-<!-- TAB 1: STORY (blue tone) -->
-<section class="tab" id="t1">
-  <div class="card">
-    <div style="font-size:36px;margin-bottom:12px;">🫶</div>
-    <h1>Slow morning.</h1>
-    <p>
-      We sleep in until <b>9–10am</b>.  
-      No rush, no pressure.  
-      Just a soft start, together.
-    </p>
-    <button class="btn" onclick="go(2)">Set the vibe</button>
-  </div>
-</section>
+      <!-- TAB 1 -->
+      <section class="tab" id="t1">
+        <div class="card">
+          <div style="font-size:36px;margin-bottom:12px;position:relative;z-index:1;">🌤️</div>
+          <h1 style="position:relative;z-index:1;">Rule #1: no early wake-up.</h1>
+          <p style="position:relative;z-index:1;">
+            We start at <b>9–10am</b>.  
+            No rushing, no “should”.  
+            Just us, in a slow lane.
+          </p>
+          <div class="btnRow" style="position:relative;z-index:1;">
+            <button class="btn" data-ripple onclick="go(2, true)">Okay, set the vibe</button>
+            <button class="btn-ghost" onclick="go(0, true)">Back</button>
+          </div>
+        </div>
+      </section>
 
-<!-- TAB 2: RULES -->
-<section class="tab" id="t2">
-  <div class="card">
-    <div style="font-size:36px;margin-bottom:12px;">🌤️</div>
-    <h1>Rules of the day</h1>
-    <p>
-      No early alarms.  
-      No overthinking.  
-      We choose each other, gently.
-    </p>
-    <button class="btn" onclick="go(3)">Let’s decide</button>
-    <button class="btn-outline" onclick="go(1)">Back</button>
-  </div>
-</section>
+      <!-- TAB 2 -->
+      <section class="tab" id="t2">
+        <div class="card">
+          <div style="font-size:36px;margin-bottom:12px;position:relative;z-index:1;">🫶</div>
+          <h1 style="position:relative;z-index:1;">Today’s mood</h1>
+          <p style="position:relative;z-index:1;">
+            Easy. Playful. Suggestive (in a cute way).  
+            And we actually spend time together — not just “activities”.
+          </p>
+          <div class="btnRow" style="position:relative;z-index:1;">
+            <button class="btn" data-ripple onclick="go(3, true)">Let’s decide</button>
+            <button class="btn-ghost" onclick="go(1, true)">Back</button>
+          </div>
+        </div>
+      </section>
 
-<!-- TAB 3: DECIDE -->
-<section class="tab" id="t3">
-  <div class="card">
-    <div style="font-size:36px;margin-bottom:12px;">🎲</div>
-    <h1>Home or out?</h1>
-    <p>
-      Two good options.  
-      Either way, we win.
-    </p>
-    <button class="btn" onclick="decide()">Pick for us</button>
-    <button class="btn-outline" onclick="go(2)">Back</button>
-  </div>
-</section>
+      <!-- TAB 3 -->
+      <section class="tab" id="t3">
+        <div class="card">
+          <div style="font-size:36px;margin-bottom:12px;position:relative;z-index:1;">🎲</div>
+          <h1 style="position:relative;z-index:1;">Home or out?</h1>
+          <p style="position:relative;z-index:1;">
+            Two good choices.  
+            Either way, I’m happy — because it’s you.
+          </p>
+          <div class="btnRow" style="position:relative;z-index:1;">
+            <button class="btn" data-ripple onclick="decide()">Pick our vibe</button>
+            <button class="btn-ghost" onclick="go(2, true)">Back</button>
+          </div>
+        </div>
+      </section>
 
-<!-- TAB 4: PLAN -->
-<section class="tab" id="t4">
-  <div class="card plan-wrap">
-    <div class="plan-title" id="planTitle"></div>
-    <div class="plan-sub">Unrushed. Intentional. Ours.</div>
-    <div class="timeline" id="timeline"></div>
-    <button class="btn-outline" onclick="go(0)">Let’s do another Saturday sometime</button>
-  </div>
-</section>
+      <!-- TAB 4 -->
+      <section class="tab" id="t4">
+        <div class="card">
+          <div class="toast" id="toast">Yay 💙 — vibe locked in</div>
 
-</div>
-</main>
+          <div class="plan-wrap" style="position:relative;z-index:1;">
+            <div class="planTop">
+              <div>
+                <h2 class="planTitle" id="planTitle">—</h2>
+                <div class="planMeta" id="planMeta">Full-day plan • slow start • more us-time</div>
+              </div>
+            </div>
 
-<nav>
-  <div class="dot active"></div>
-  <div class="dot"></div>
-  <div class="dot"></div>
-  <div class="dot"></div>
-  <div class="dot"></div>
-</nav>
+            <div class="timeline" id="timeline"></div>
+
+            <div class="btnRow" style="margin-top:10px;">
+              <button class="btn" data-ripple onclick="reroll()">Reroll? (tempting) 😌</button>
+              <button class="btn-ghost" onclick="go(3, true)">Back to Decide</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <nav aria-hidden="true">
+    <div class="dot active"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </nav>
 
 <script>
-const tabs=[...document.querySelectorAll('.tab')];
-const dots=[...document.querySelectorAll('.dot')];
-const body=document.body;
+  // ===== Tabs + Theme switching (bold gradients) =====
+  const tabs = [...document.querySelectorAll('.tab')];
+  const dots = [...document.querySelectorAll('.dot')];
+  const body = document.body;
 
-const gradients=[
-  ['var(--g0a)','var(--g0b)'],
-  ['var(--g1a)','var(--g1b)'],
-  ['var(--g2a)','var(--g2b)'],
-  ['var(--g3a)','var(--g3b)'],
-  ['var(--g4a)','var(--g4b)']
-];
+  const themes = [
+    ['var(--t0a)','var(--t0b)'],
+    ['var(--t1a)','var(--t1b)'],
+    ['var(--t2a)','var(--t2b)'],
+    ['var(--t3a)','var(--t3b)'],
+    ['var(--t4a)','var(--t4b)'],
+  ];
 
-function go(i){
-  tabs.forEach(t=>t.classList.remove('active'));
-  dots.forEach(d=>d.classList.remove('active'));
-  tabs[i].classList.add('active');
-  dots[i].classList.add('active');
-  body.style.background=`linear-gradient(135deg,${gradients[i][0]},${gradients[i][1]})`;
-}
+  function go(i, smooth){
+    tabs.forEach(t=>t.classList.remove('active'));
+    dots.forEach(d=>d.classList.remove('active'));
+    tabs[i].classList.add('active');
+    dots[i].classList.add('active');
+    body.style.background = `linear-gradient(135deg, ${themes[i][0]}, ${themes[i][1]})`;
+    if (smooth) window.scrollTo({top:0, behavior:'smooth'});
+  }
 
-const OPTIONS=[
-{
-  name:"Stay-Home Date 🏠",
-  plan:[
-    ["10:00","Wake up slowly. Curtains half-open, no phones yet."],
-    ["10:45","Order brunch for lunch — save energy."],
-    ["12:30","Puzzle / LEGO / painting together. Quiet but close."],
-    ["15:00","Read books or listen to music side-by-side."],
-    ["17:30","I cook steak. You keep me company."],
-    ["19:30","Netflix night + drinks I prepare."],
-    ["21:30","One-on-one soul share. Then sleep together."]
-  ]
-},
-{
-  name:"Out Date 🏙️",
-  plan:[
-    ["09:30","Wake up gently. Coffee at home."],
-    ["11:00","Brunch after we’re fully awake (city is far)."],
-    ["12:30","Café reading or light shopping."],
-    ["15:00","Stroll District 1 or 3."],
-    ["18:30","Dinner idea: pizza, pasta, or something cozy."],
-    ["20:30","Dessert + walk. Go home full and happy."]
-  ]
-}
-];
+  document.getElementById('dateTxt').textContent =
+    new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
 
-function decide(){
-  const pick=OPTIONS[Math.random()*OPTIONS.length|0];
-  document.getElementById('planTitle').textContent=pick.name;
-  document.getElementById('timeline').innerHTML=
-    pick.plan.map(p=>`
+  // ===== Plans (updated per your request) =====
+  const OPTIONS = [
+    {
+      key: "home",
+      name: "Stay-Home Date 🏠",
+      meta: "steak by you • netflix + drinks • soul-share",
+      plan: [
+        ["10:00","Wake up slowly. Stretch. Cuddle. No rushing."],
+        ["10:45","Order brunch/lunch (save energy for us)."],
+        ["12:30","Creative block: drawing / LEGO / puzzle — same table, same playlist."],
+        ["15:00","Books + music together (quiet but intimate)."],
+        ["17:30","You cook steak. I’m your assistant / taste tester 😌"],
+        ["19:45","Netflix night + drinks you prepare (cute, intentional)."],
+        ["21:30","1:1 Soul-share: one question each — no judgment, just us."],
+        ["23:00","Sleep. Close. Warm. Done."]
+      ]
+    },
+    {
+      key: "out",
+      name: "Out Date 🏙️",
+      meta: "brunch later • café/reading • district 1/3 dinner idea",
+      plan: [
+        ["09:30","Wake up gently. Coffee at home first."],
+        ["10:30","Slow prep (home is far). No stress, just vibes."],
+        ["11:30","Brunch (after 1–2 hours you’re fully awake)."],
+        ["13:00","Café reading or light shopping (District 1)."],
+        ["15:30","Walk District 3 — leafy streets, calm corners."],
+        ["18:30","Dinner idea (District 1/3): pick one cozy place below."],
+        ["20:30","Dessert + slow walk. Go home full + happy."],
+        ["22:00","Shower. Bed. Recap: one thing you loved today."]
+      ],
+      eats: [
+        "Brunch ideas (D1): CTY Kitchen + Bar, Godmother Bake & Brunch, L’Usine. ",
+        "Romantic dinner picks: Michelin Guide’s romantic list (e.g., Coco Dining / CieL / Akuna / Oryz / Esta…). ",
+        "If you want a steak dinner vibe: many date-friendly steak options show up consistently in HCMC lists."
+      ]
+    }
+  ];
+
+  let current = null;
+
+  function renderPlan(opt){
+    document.getElementById('planTitle').textContent = opt.name;
+    document.getElementById('planMeta').textContent = opt.meta;
+
+    const tl = document.getElementById('timeline');
+    tl.innerHTML = opt.plan.map(([t,a])=>`
       <div class="slot">
-        <div class="time">${p[0]}</div>
-        <div class="act">${p[1]}</div>
-      </div>`).join('');
-  go(4);
-}
+        <div class="time">${t}</div>
+        <div class="act">${a}</div>
+      </div>
+    `).join("");
 
-document.getElementById('dateTxt').textContent=
-  new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    // If out-date, append restaurant notes (not too long)
+    if(opt.key === "out"){
+      const note = document.createElement('div');
+      note.className = 'slot';
+      note.innerHTML = `
+        <div class="time">Food</div>
+        <div class="act">
+          <b>Brunch (D1)</b>: CTY Kitchen + Bar, Godmother Bake & Brunch, L’Usine.<br/>
+          <b>Romantic dinner</b>: pick from Michelin Guide’s romantic dinner list.<br/>
+          <span style="opacity:.8">Tip: save 2 places, decide later based on mood.</span>
+        </div>`;
+      tl.appendChild(note);
+    }
+  }
+
+  // ===== Celebration FX (hearts + confetti) =====
+  const fx = document.getElementById('fx');
+  const ctx = fx.getContext('2d');
+  let W=0,H=0, particles=[];
+  function resize(){
+    W = fx.width = window.innerWidth;
+    H = fx.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function spawnCelebration(){
+    const count = 140;
+    for(let i=0;i<count;i++){
+      const isHeart = Math.random() < 0.55;
+      particles.push({
+        x: W*0.2 + Math.random()*W*0.6,
+        y: H*0.62 + Math.random()*20,
+        vx: (-1.3 + Math.random()*2.6),
+        vy: (-6.5 - Math.random()*6.5),
+        g: 0.12 + Math.random()*0.10,
+        life: 90 + Math.random()*70,
+        r: 4 + Math.random()*6,
+        rot: Math.random()*Math.PI*2,
+        vr: (-0.15 + Math.random()*0.3),
+        kind: isHeart ? "heart" : "confetti",
+        hue: isHeart ? (330 + Math.random()*30) : (200 + Math.random()*80)
+      });
+    }
+    tickFX();
+  }
+
+  function drawHeart(x,y,s,rot,alpha,hue){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(rot);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = `hsla(${hue}, 85%, 65%, ${alpha})`;
+    ctx.beginPath();
+    // simple heart param
+    const k = s;
+    ctx.moveTo(0, k*0.35);
+    ctx.bezierCurveTo(0, -k*0.35, -k, -k*0.05, 0, k);
+    ctx.bezierCurveTo(k, -k*0.05, 0, -k*0.35, 0, k*0.35);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  let running=false;
+  function tickFX(){
+    if(running) return;
+    running = true;
+    (function loop(){
+      ctx.clearRect(0,0,W,H);
+      particles = particles.filter(p => p.life-- > 0);
+
+      for(const p of particles){
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.g;
+        p.rot += p.vr;
+
+        const alpha = Math.max(0, Math.min(1, p.life/120));
+
+        if(p.kind === "heart"){
+          drawHeart(p.x, p.y, p.r, p.rot, alpha, p.hue);
+        }else{
+          ctx.save();
+          ctx.translate(p.x,p.y);
+          ctx.rotate(p.rot);
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = `hsla(${p.hue}, 85%, 62%, ${alpha})`;
+          ctx.fillRect(-p.r, -p.r*0.35, p.r*2.2, p.r*0.7);
+          ctx.restore();
+        }
+      }
+
+      if(particles.length>0){
+        requestAnimationFrame(loop);
+      }else{
+        running=false;
+      }
+    })();
+  }
+
+  function toast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 1700);
+  }
+
+  // ===== Decide + Reroll =====
+  function pickOne(){
+    return OPTIONS[Math.floor(Math.random()*OPTIONS.length)];
+  }
+
+  function decide(){
+    current = pickOne();
+    renderPlan(current);
+    go(4, true);
+
+    // celebrate on result tab
+    toast(`Yay 💙 — ${current.key === "home" ? "home date" : "out date"} chosen`);
+    spawnCelebration();
+  }
+
+  function reroll(){
+    current = pickOne();
+    renderPlan(current);
+    toast("Okay okay… one more spin 😌");
+    spawnCelebration();
+  }
+
+  // ===== Button ripple wiring =====
+  document.addEventListener('click', (e)=>{
+    const btn = e.target.closest('[data-ripple]');
+    if(!btn) return;
+    const rect = btn.getBoundingClientRect();
+    const s = Math.max(rect.width, rect.height);
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    ripple.style.width = ripple.style.height = s + "px";
+    ripple.style.left = (e.clientX - rect.left - s/2) + "px";
+    ripple.style.top  = (e.clientY - rect.top  - s/2) + "px";
+    btn.appendChild(ripple);
+    setTimeout(()=> ripple.remove(), 650);
+  });
 </script>
-
 </body>
 </html>
