@@ -5,22 +5,22 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>The Ritual</title>
+  <title>Saturday Decider</title>
 
   <style>
     :root {
       --p: #c2d1ff;
-      --pink: rgba(255, 209, 232, 0.10);
-      --blue: rgba(194, 209, 255, 0.12);
-      --mint: rgba(160, 255, 220, 0.08);
+      --pink: rgba(255, 209, 232, 0.12);
+      --blue: rgba(194, 209, 255, 0.14);
+      --mint: rgba(160, 255, 220, 0.10);
 
       --bg: #050507;
-      --glass: rgba(255, 255, 255, 0.035);
+      --glass: rgba(255, 255, 255, 0.04);
       --glass-2: rgba(255, 255, 255, 0.02);
-      --glass-stroke: rgba(255, 255, 255, 0.12);
+      --stroke: rgba(255, 255, 255, 0.12);
 
       --text: #ffffff;
-      --text-soft: rgba(255, 255, 255, 0.45);
+      --soft: rgba(255, 255, 255, 0.50);
 
       --cardR: 44px;
       --shadow: 0 40px 110px rgba(0,0,0,0.65);
@@ -41,24 +41,23 @@
       flex-direction: column;
     }
 
-    /* ===== Background: mesh + moving blobs (full screen) ===== */
+    /* ===== Background: mesh + moving blobs ===== */
     .bg {
       position: fixed;
       inset: 0;
       z-index: -1;
       overflow: hidden;
     }
-
     .mesh {
       position: absolute;
       inset: -30%;
       background:
-        radial-gradient(circle at 20% 20%, var(--blue) 0%, transparent 45%),
-        radial-gradient(circle at 80% 80%, var(--pink) 0%, transparent 45%),
+        radial-gradient(circle at 18% 20%, var(--blue) 0%, transparent 45%),
+        radial-gradient(circle at 82% 80%, var(--pink) 0%, transparent 45%),
         radial-gradient(circle at 45% 95%, var(--mint) 0%, transparent 50%);
       filter: blur(70px);
-      opacity: 1;
       animation: meshDrift 18s var(--ease) infinite alternate;
+      opacity: 1;
     }
     @keyframes meshDrift {
       from { transform: translate3d(-2%, 1%, 0) scale(1); }
@@ -73,44 +72,56 @@
       filter: blur(65px);
       opacity: 0.55;
       mix-blend-mode: screen;
-      transform: translate3d(0,0,0);
-      animation: blobRoam 22s var(--ease) infinite alternate;
+      animation: blobRoam 24s var(--ease) infinite alternate;
     }
-    .b1 { background: rgba(194,209,255,0.20); left: -10%; top: -15%; animation-duration: 26s; }
-    .b2 { background: rgba(255,209,232,0.18); right: -12%; bottom: -18%; animation-duration: 28s; animation-delay: -8s; }
-    .b3 { background: rgba(160,255,220,0.14); left: 18%; bottom: -22%; animation-duration: 30s; animation-delay: -14s; }
-
+    .b1 { background: rgba(194,209,255,0.20); left: -12%; top: -18%; animation-duration: 26s; }
+    .b2 { background: rgba(255,209,232,0.18); right: -14%; bottom: -20%; animation-duration: 28s; animation-delay: -8s; }
+    .b3 { background: rgba(160,255,220,0.14); left: 18%; bottom: -24%; animation-duration: 30s; animation-delay: -14s; }
     @keyframes blobRoam {
       from { transform: translate3d(0,0,0) scale(1); }
       to   { transform: translate3d(14%, -10%, 0) scale(1.08); }
     }
 
+    /* hearts / confetti canvas */
+    #fx {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 50;
+    }
+
     /* ===== Header ===== */
     header {
-      padding: calc(env(safe-area-inset-top) + 18px) 26px;
+      padding: calc(env(safe-area-inset-top) + 18px) 22px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       z-index: 10;
     }
-
+    .hdr-left{
+      display:flex; flex-direction:column; gap:3px;
+      user-select:none;
+    }
     .hdr-title {
-      font-weight: 800;
+      font-weight: 900;
       font-size: 11px;
       letter-spacing: 2px;
-      color: var(--text-soft);
-      user-select: none;
+      color: rgba(255,255,255,0.65);
+    }
+    .hdr-sub{
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
     }
 
     .audio-trigger {
-      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-      border: 1px solid var(--glass-stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      border: 1px solid var(--stroke);
       padding: 8px 14px;
       border-radius: 100px;
       font-size: 10px;
-      letter-spacing: 1.5px;
+      letter-spacing: 1.2px;
       text-transform: uppercase;
-      font-weight: 800;
+      font-weight: 900;
       backdrop-filter: blur(12px);
       color: var(--p);
       user-select: none;
@@ -119,28 +130,26 @@
     /* ===== Main ===== */
     main {
       flex: 1;
-      position: relative;
       display: grid;
       place-items: center;
       padding: 18px;
     }
 
-    /* Locked container — consistent across tabs */
     .ritual-container {
       width: 100%;
       max-width: 390px;
-      height: min(520px, calc(100dvh - 170px)); /* stable but adapts */
+      height: min(540px, calc(100dvh - 170px));
       position: relative;
     }
 
-    /* ===== Tabs: always present, transition via opacity/transform ===== */
+    /* Tabs: always present */
     .tab-view {
       position: absolute;
       inset: 0;
-      display: flex;            /* IMPORTANT: always flex */
+      display: flex;
       opacity: 0;
       transform: translateY(14px) scale(0.985);
-      filter: blur(6px);
+      filter: blur(7px);
       pointer-events: none;
       transition:
         opacity 0.55s var(--ease),
@@ -148,7 +157,6 @@
         filter 0.65s var(--ease);
       will-change: opacity, transform, filter;
     }
-
     .tab-view.active {
       opacity: 1;
       transform: translateY(0) scale(1);
@@ -157,11 +165,11 @@
     }
 
     .glass-inner {
-      background: linear-gradient(145deg, rgba(255,255,255,0.065) 0%, rgba(255,255,255,0.015) 100%);
+      background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.015) 100%);
       backdrop-filter: blur(50px);
-      border: 1px solid var(--glass-stroke);
+      border: 1px solid var(--stroke);
       border-radius: var(--cardR);
-      padding: 40px 25px;
+      padding: 38px 24px;
       text-align: center;
       width: 100%;
       height: 100%;
@@ -193,15 +201,15 @@
 
     h1 {
       font-size: 30px;
-      font-weight: 650;
+      font-weight: 780;
       margin: 0 0 10px;
-      letter-spacing: -1.2px;
+      letter-spacing: -1.1px;
     }
     p {
-      font-size: 16px;
-      color: var(--text-soft);
-      line-height: 1.55;
-      margin: 0 0 28px;
+      font-size: 15.5px;
+      color: var(--soft);
+      line-height: 1.6;
+      margin: 0 0 26px;
       max-width: 92%;
     }
 
@@ -209,49 +217,56 @@
       background: #fff;
       color: #000;
       border: none;
-      padding: 18px 18px;
+      padding: 17px 18px;
       border-radius: 22px;
       font-size: 16px;
-      font-weight: 850;
+      font-weight: 900;
       width: 100%;
       cursor: pointer;
       transition: transform 0.18s var(--ease), opacity 0.18s var(--ease);
     }
     .btn:active { transform: scale(0.965); opacity: 0.92; }
+
     .btn-outline {
       background: transparent;
       color: #fff;
-      border: 1px solid var(--glass-stroke);
+      border: 1px solid var(--stroke);
       margin-top: 10px;
     }
 
-    /* Compact Timeline */
+    /* Plan list */
     .compact-list {
       width: 100%;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      margin-bottom: 18px;
+      margin: 6px 0 16px;
     }
     .list-item {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
-      padding: 12px 18px;
+      gap: 12px;
+      padding: 12px 16px;
       border-radius: 18px;
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.04);
     }
     .item-time {
       font-size: 10px;
-      font-weight: 900;
+      font-weight: 950;
       color: var(--p);
       letter-spacing: 0.6px;
+      min-width: 54px;
+      text-align: left;
     }
     .item-text {
-      font-size: 14px;
-      font-weight: 600;
+      font-size: 13.7px;
+      font-weight: 650;
       color: rgba(255,255,255,0.92);
+      text-align: right;
+      line-height: 1.35;
+      flex: 1;
     }
 
     /* Dots nav */
@@ -280,13 +295,13 @@
 
     /* Decision phase animation */
     @keyframes pulse-glow {
-      0%   { border-color: var(--glass-stroke); box-shadow: var(--shadow); }
-      50%  { border-color: rgba(194,209,255,0.55); box-shadow: 0 40px 110px rgba(0,0,0,0.65), 0 0 38px rgba(194,209,255,0.12); }
-      100% { border-color: var(--glass-stroke); box-shadow: var(--shadow); }
+      0%   { border-color: var(--stroke); box-shadow: var(--shadow); }
+      50%  { border-color: rgba(194,209,255,0.55); box-shadow: 0 40px 110px rgba(0,0,0,0.65), 0 0 40px rgba(194,209,255,0.12); }
+      100% { border-color: var(--stroke); box-shadow: var(--shadow); }
     }
-    .thinking .glass-inner { animation: pulse-glow 1.35s infinite; }
+    .thinking .glass-inner { animation: pulse-glow 1.25s infinite; }
 
-    /* Mobile small: keep centered, less padding */
+    /* small screens */
     @media (max-height: 740px){
       .glass-inner{ padding: 34px 22px; }
       h1{ font-size: 28px; }
@@ -303,59 +318,85 @@
     <div class="blob b3"></div>
   </div>
 
+  <canvas id="fx"></canvas>
+
   <header>
-    <div class="hdr-title">THE RITUAL</div>
+    <div class="hdr-left">
+      <div class="hdr-title">SATURDAY DECIDER</div>
+      <div class="hdr-sub" id="hdrDate">We’re not speedrunning Saturday.</div>
+    </div>
     <div class="audio-trigger" id="audioBtn" onclick="toggleAudio()">Sound Off</div>
   </header>
 
   <main>
     <div class="ritual-container" id="ritualCard">
 
+      <!-- STORY -->
       <div id="view-story" class="tab-view active">
         <div class="glass-inner">
-          <div style="font-size: 38px; margin-bottom: 15px;">🌑</div>
-          <h1>The Beginning</h1>
-          <p>Tomorrow is an open door. Step away from the noise and let the day unfold.</p>
-          <button class="btn" onclick="next('vibe')">Begin the ritual</button>
+          <div style="font-size: 38px; margin-bottom: 15px;">🫶</div>
+          <h1>Saturday, but soft.</h1>
+          <p>
+            No alarms. No “productive morning” drama.
+            We sleep in until <b>9–10am</b>, then we let the day pick a vibe.
+          </p>
+          <button class="btn" onclick="next('vibe')">Okay, set the mood</button>
         </div>
       </div>
 
+      <!-- VIBE -->
       <div id="view-vibe" class="tab-view">
         <div class="glass-inner">
-          <div style="font-size: 38px; margin-bottom: 15px;">✨</div>
-          <h1>Stillness</h1>
-          <p>We are leaving the plans behind. Take a breath and trust the rhythm of the ritual.</p>
-          <button class="btn" onclick="next('decide')">Step forward</button>
+          <div style="font-size: 38px; margin-bottom: 15px;">☁️</div>
+          <h1>Rules of the day</h1>
+          <p>
+            Rule #1: we don’t wake up early.<br/>
+            Rule #2: we don’t overthink.<br/>
+            Rule #3: we’re cute about it.
+          </p>
+          <button class="btn" onclick="next('decide')">Let’s decide (gently)</button>
           <button class="btn btn-outline" onclick="next('story')">Back</button>
         </div>
       </div>
 
+      <!-- DECIDE -->
       <div id="view-decide" class="tab-view">
         <div class="glass-inner">
           <div id="roll-ui">
-            <div style="font-size: 38px; margin-bottom: 15px;">🔮</div>
-            <h1>Invite Fate</h1>
-            <p>The universe will now decide the frequency for your Saturday.</p>
-            <button class="btn" onclick="startRolling()">Consult the stars</button>
+            <div style="font-size: 38px; margin-bottom: 15px;">🎲</div>
+            <h1>Out… or home?</h1>
+            <p>
+              Two options only. Fair. Simple.
+              We’ll either do an <b>Out Date</b> or a <b>Stay-Home Date</b>.
+            </p>
+            <button class="btn" onclick="startRolling()">Pick our vibe</button>
             <button class="btn btn-outline" onclick="next('vibe')">Back</button>
           </div>
 
           <div id="result-ui" style="display:none;">
-            <div style="font-size: 10px; font-weight: 900; color: var(--p); letter-spacing: 2px; margin-bottom: 10px;">VIBE SELECTED</div>
+            <div style="font-size: 10px; font-weight: 950; color: var(--p); letter-spacing: 2px; margin-bottom: 10px;">
+              DECISION LOCKED (kinda)
+            </div>
             <h1 id="res-title">...</h1>
             <p id="res-desc">...</p>
-            <button class="btn" onclick="next('plan')">Reveal Schedule</button>
-            <button class="btn btn-outline" onclick="startRolling()">Reroll fate</button>
+            <button class="btn" onclick="next('plan')">Show the full plan</button>
+            <button class="btn btn-outline" onclick="startRolling()">One more roll 😌</button>
             <button class="btn btn-outline" onclick="next('vibe')">Back</button>
           </div>
         </div>
       </div>
 
+      <!-- PLAN -->
       <div id="view-plan" class="tab-view">
-        <div class="glass-inner" style="justify-content:flex-start; padding-top: 45px;">
-          <h2 id="plan-name" style="margin: 0 0 22px; font-size: 24px; font-weight: 750;">The Path</h2>
+        <div class="glass-inner" style="justify-content:flex-start; padding-top: 40px;">
+          <h2 id="plan-name" style="margin: 0 0 8px; font-size: 24px; font-weight: 850;">The Plan</h2>
+          <div style="font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 12px; max-width: 92%;">
+            Loose schedule. No stress. Just a cute day we actually follow.
+          </div>
+
           <div class="compact-list" id="timeline"></div>
-          <button class="btn btn-outline" style="margin-top:auto;" onclick="resetRitual()">Reset ritual</button>
+
+          <button class="btn btn-outline" style="margin-top:auto;" onclick="resetRitual()">Reset</button>
         </div>
       </div>
 
@@ -370,62 +411,151 @@
   </nav>
 
   <script>
+    // ===== More detailed Saturday plans (still soft + realistic) =====
     const OPTIONS = [
-      { name: "Urban Bloom", icon: "🏙️", d: "City lights and shared motion.", s: [["10:30", "Slow Coffee"], ["12:30", "Urban Brunch"], ["15:00", "Gallery Walk"], ["19:30", "Night Dinner"]] },
-      { name: "Velvet Home", icon: "🏠", d: "Comfort and soft light.", s: [["11:00", "Silk Morning"], ["13:30", "Co-op Play"], ["16:30", "Quiet Nap"], ["20:00", "Candlelight"]] }
+      {
+        name: "Out Date",
+        icon: "🏙️",
+        d: "We leave the house looking cute and pretending we’re main characters (quietly).",
+        s: [
+          ["09:30", "Wake up slow. Water, stretch, steal kisses."],
+          ["10:15", "Lazy brunch: pick a place with comfy chairs (priority)."],
+          ["11:30", "A slow walk: bookstore / cute café / park. No rushing."],
+          ["13:00", "Mini adventure: cinema OR a new neighborhood to wander."],
+          ["15:00", "Sweet break: dessert + people-watch + small gossip."],
+          ["16:30", "Home reset: shower + comfy clothes + a short nap."],
+          ["19:00", "Dinner date: one place we love or one place we’ve never tried."],
+          ["21:00", "Night treat: a walk or a tiny bar/café — then bed like a happy ending."]
+        ]
+      },
+      {
+        name: "Stay-Home Date",
+        icon: "🏠",
+        d: "We turn the house into a cozy universe. Soft, silly, and a bit romantic.",
+        s: [
+          ["10:00", "Wake up slow. Curtains half-open. No phone doomscrolling."],
+          ["10:45", "Brunch at home: one cooks, one DJs (we swap next time)."],
+          ["12:00", "Cozy activity: co-op game / puzzle / read side-by-side."],
+          ["14:00", "Movie roulette: shortlist 3 → random pick 1."],
+          ["16:00", "Nap + snack. We do absolutely nothing and feel proud."],
+          ["17:30", "Home spa: shower, skincare, haircare — take your time."],
+          ["19:30", "Cook together: simple but pretty. Plate it like a restaurant."],
+          ["21:30", "Dessert + ‘one good thing today’ mini recap — then sleep close."]
+        ]
+      }
     ];
 
     let current = null;
-
-    // ===== Audio (unchanged core) =====
-    let audioCtx, gainNode, osc1, osc2;
-
-    function initAudio() {
-      if (audioCtx) return;
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      gainNode = audioCtx.createGain();
-      gainNode.connect(audioCtx.destination);
-      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-    }
-
-    function toggleAudio() {
-      initAudio();
-      const btn = document.getElementById('audioBtn');
-
-      if (osc1) {
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
-        setTimeout(() => { try{osc1.stop(); osc2.stop();}catch(e){} osc1 = null; osc2 = null; }, 900);
-        btn.textContent = "Sound Off";
-      } else {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        osc1 = audioCtx.createOscillator(); osc2 = audioCtx.createOscillator();
-        osc1.frequency.setValueAtTime(196.0, audioCtx.currentTime);
-        osc2.frequency.setValueAtTime(246.94, audioCtx.currentTime);
-        osc1.connect(gainNode); osc2.connect(gainNode);
-        osc1.start(); osc2.start();
-        gainNode.gain.exponentialRampToValueAtTime(0.03, audioCtx.currentTime + 1.4);
-        btn.textContent = "Sound On";
-      }
-    }
 
     // ===== Tabs =====
     const order = ['story','vibe','decide','plan'];
 
     function next(id){
-      // activate tab
       document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
-      const target = document.getElementById('view-' + id);
-      target.classList.add('active');
+      document.getElementById('view-' + id).classList.add('active');
 
-      // dots
       const dots = document.querySelectorAll('.dot');
       dots.forEach(d => d.classList.remove('active'));
       dots[order.indexOf(id)].classList.add('active');
 
-      // plan render
       if (id === 'plan' && current) renderPlan();
     }
 
+    // ===== FX: hearts + sparkles on canvas =====
+    const fx = document.getElementById('fx');
+    const fctx = fx.getContext('2d');
+    let particles = [];
+    let fxOn = false;
+
+    function resizeFx(){
+      fx.width = window.innerWidth * devicePixelRatio;
+      fx.height = window.innerHeight * devicePixelRatio;
+      fx.style.width = window.innerWidth + 'px';
+      fx.style.height = window.innerHeight + 'px';
+      fctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    }
+    window.addEventListener('resize', resizeFx);
+    resizeFx();
+
+    const palette = [
+      "rgba(194,209,255,0.95)",
+      "rgba(255,209,232,0.95)",
+      "rgba(160,255,220,0.90)",
+      "rgba(255,255,255,0.90)"
+    ];
+
+    function spawnHeartsBurst(){
+      const cx = window.innerWidth * (0.35 + Math.random()*0.3);
+      const cy = window.innerHeight * (0.35 + Math.random()*0.2);
+      const count = 46;
+
+      for(let i=0;i<count;i++){
+        particles.push({
+          x: cx,
+          y: cy,
+          vx: (Math.random()*2 - 1) * 3.2,
+          vy: -(2.5 + Math.random()*4.5),
+          g: 0.05 + Math.random()*0.06,
+          life: 80 + Math.random()*55,
+          r: 4 + Math.random()*5,
+          type: Math.random() < 0.55 ? "heart" : "spark",
+          c: palette[(Math.random()*palette.length)|0],
+          rot: Math.random()*Math.PI*2,
+          vr: (Math.random()*2 - 1) * 0.12
+        });
+      }
+      fxOn = true;
+      requestAnimationFrame(tickFx);
+      setTimeout(()=>{ fxOn=false; }, 1700);
+    }
+
+    function drawHeart(x,y,size,color,rot){
+      fctx.save();
+      fctx.translate(x,y);
+      fctx.rotate(rot);
+      fctx.fillStyle = color;
+      fctx.beginPath();
+      const s = size;
+      fctx.moveTo(0, s*0.35);
+      fctx.bezierCurveTo(0, 0, -s, 0, -s, s*0.35);
+      fctx.bezierCurveTo(-s, s*0.8, 0, s*1.05, 0, s*1.28);
+      fctx.bezierCurveTo(0, s*1.05, s, s*0.8, s, s*0.35);
+      fctx.bezierCurveTo(s, 0, 0, 0, 0, s*0.35);
+      fctx.closePath();
+      fctx.fill();
+      fctx.restore();
+    }
+
+    function tickFx(){
+      fctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+
+      particles = particles.filter(p => p.life-- > 0);
+      for(const p of particles){
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.g;
+        p.rot += p.vr;
+
+        const alpha = Math.max(0, Math.min(1, p.life/120));
+        const col = p.c.replace(/[\d\.]+\)$/,'') + alpha + ')';
+
+        if(p.type === "heart"){
+          drawHeart(p.x, p.y, p.r, col, p.rot);
+        }else{
+          fctx.save();
+          fctx.globalAlpha = alpha;
+          fctx.fillStyle = p.c;
+          fctx.beginPath();
+          fctx.arc(p.x, p.y, p.r*0.55, 0, Math.PI*2);
+          fctx.fill();
+          fctx.restore();
+        }
+      }
+
+      if(fxOn || particles.length>0) requestAnimationFrame(tickFx);
+    }
+
+    // ===== Decision phase =====
     function startRolling(){
       const card = document.getElementById('ritualCard');
       card.classList.add('thinking');
@@ -433,13 +563,21 @@
       document.getElementById('roll-ui').style.display = 'none';
       document.getElementById('result-ui').style.display = 'none';
 
+      // tiny tactile + sound (if enabled)
+      playChime();
+      if (navigator.vibrate) navigator.vibrate([15, 20, 15]);
+
       setTimeout(() => {
         card.classList.remove('thinking');
         current = OPTIONS[Math.floor(Math.random() * OPTIONS.length)];
+
         document.getElementById('res-title').textContent = current.icon + " " + current.name;
         document.getElementById('res-desc').textContent = current.d;
         document.getElementById('result-ui').style.display = 'block';
-      }, 1600);
+
+        spawnHeartsBurst();
+        playPop();
+      }, 1200);
     }
 
     function renderPlan(){
@@ -453,12 +591,87 @@
     }
 
     function resetRitual(){
-      // reset to initial tab, clear state
       current = null;
       document.getElementById('roll-ui').style.display = 'block';
       document.getElementById('result-ui').style.display = 'none';
       next('story');
     }
+
+    // ===== Sound: reliable iOS-friendly chime =====
+    let audioEnabled = false;
+    let audioCtx, master, filter;
+
+    function ensureAudio(){
+      if (audioCtx) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      master = audioCtx.createGain();
+      master.gain.value = 0.0; // off by default until enabled
+      filter = audioCtx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = 900;
+
+      filter.connect(master);
+      master.connect(audioCtx.destination);
+    }
+
+    function toggleAudio(){
+      ensureAudio();
+      const btn = document.getElementById('audioBtn');
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      audioEnabled = !audioEnabled;
+      if(audioEnabled){
+        master.gain.cancelScheduledValues(audioCtx.currentTime);
+        master.gain.setValueAtTime(master.gain.value, audioCtx.currentTime);
+        master.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 0.25);
+        btn.textContent = "Sound On";
+        // friendly confirmation
+        playChime();
+      }else{
+        master.gain.cancelScheduledValues(audioCtx.currentTime);
+        master.gain.setValueAtTime(master.gain.value, audioCtx.currentTime);
+        master.gain.linearRampToValueAtTime(0.0, audioCtx.currentTime + 0.2);
+        btn.textContent = "Sound Off";
+      }
+    }
+
+    function tone(freq, dur, type="sine", at=0){
+      if(!audioEnabled) return;
+      ensureAudio();
+      if (audioCtx.state === 'suspended') return;
+
+      const t0 = audioCtx.currentTime + at;
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, t0);
+
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.35, t0 + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+
+      osc.connect(g);
+      g.connect(filter);
+
+      osc.start(t0);
+      osc.stop(t0 + dur + 0.02);
+    }
+
+    function playChime(){
+      // tiny 2-note chime
+      tone(660, 0.18, "sine", 0.00);
+      tone(880, 0.20, "sine", 0.10);
+    }
+
+    function playPop(){
+      // soft "pop" using triangle
+      tone(520, 0.12, "triangle", 0.00);
+    }
+
+    // Header date text
+    const d = new Date();
+    const nice = d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+    document.getElementById('hdrDate').textContent = `${nice} • Sleep-in until 9–10am.`;
   </script>
 </body>
 </html>
