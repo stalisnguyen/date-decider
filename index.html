@@ -9,8 +9,7 @@
 
   <style>
     :root {
-      --p: #c2d1ff; /* Premium Periwinkle */
-      --accent: #ffd1e8;
+      --p: #c2d1ff; 
       --bg: #050507;
       --glass: rgba(255, 255, 255, 0.03);
       --glass-stroke: rgba(255, 255, 255, 0.1);
@@ -21,18 +20,17 @@
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     
     body {
-      margin: 0; font-family: -apple-system, "SF Pro Display", "Helvetica Neue", sans-serif;
+      margin: 0; font-family: -apple-system, "SF Pro Display", sans-serif;
       background: var(--bg); color: var(--text);
       height: 100dvh; overflow: hidden;
       display: flex; flex-direction: column;
     }
 
-    /* Cinematic Background */
     .mesh {
       position: fixed; inset: 0; z-index: -1;
       background: 
-        radial-gradient(circle at 10% 10%, rgba(194, 209, 255, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 90% 90%, rgba(255, 209, 232, 0.08) 0%, transparent 40%);
+        radial-gradient(circle at 15% 15%, rgba(194, 209, 255, 0.1) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(255, 209, 232, 0.08) 0%, transparent 40%);
       filter: blur(80px);
     }
 
@@ -44,83 +42,85 @@
 
     .audio-trigger {
       background: var(--glass); border: 1px solid var(--glass-stroke);
-      padding: 6px 14px; border-radius: 100px; font-size: 11px;
-      letter-spacing: 1px; text-transform: uppercase; font-weight: 600;
-      backdrop-filter: blur(10px); cursor: pointer; color: var(--p);
+      padding: 8px 16px; border-radius: 100px; font-size: 10px;
+      letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700;
+      backdrop-filter: blur(10px); color: var(--p);
     }
 
-    /* Fixed-Position Container */
     main {
       flex: 1; position: relative;
       display: flex; align-items: center; justify-content: center;
       padding: 20px;
     }
 
-    .card-stack {
+    /* THE LOCKED CONTAINER: Ensures all tabs look the same */
+    .ritual-container {
       width: 100%; max-width: 380px;
-      min-height: 480px; /* Keeps everything consistent */
+      height: 460px; /* Fixed height for consistency */
       position: relative;
     }
 
     .tab-view {
       position: absolute; inset: 0;
       display: none; opacity: 0; 
-      transform: scale(0.96);
-      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-      flex-direction: column; justify-content: center;
+      transform: translateY(10px);
+      transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .tab-view.active { display: flex; opacity: 1; transform: scale(1); }
+    .tab-view.active { display: flex; opacity: 1; transform: translateY(0); }
 
     .glass-inner {
-      background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
-      backdrop-filter: blur(40px);
+      background: linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.01) 100%);
+      backdrop-filter: blur(50px);
       border: 1px solid var(--glass-stroke);
-      border-radius: 48px; padding: 45px 30px;
-      text-align: center; height: 100%;
-      display: flex; flex-direction: column; justify-content: center;
-      box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+      border-radius: 44px; padding: 40px 25px;
+      text-align: center; width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.6);
     }
 
-    h1 { font-size: 32px; font-weight: 600; margin: 0 0 12px; letter-spacing: -1.5px; }
-    p { font-size: 17px; color: var(--text-soft); line-height: 1.6; margin-bottom: 35px; }
+    h1 { font-size: 30px; font-weight: 600; margin: 0 0 10px; letter-spacing: -1.2px; }
+    p { font-size: 16px; color: var(--text-soft); line-height: 1.5; margin: 0 0 30px; max-width: 90%; }
 
     .btn {
       background: #fff; color: #000; border: none;
-      padding: 22px; border-radius: 24px; font-size: 17px;
+      padding: 20px; border-radius: 22px; font-size: 16px;
       font-weight: 700; width: 100%; cursor: pointer;
-      transition: 0.3s cubic-bezier(0.2, 1, 0.3, 1);
+      transition: transform 0.2s cubic-bezier(0.2, 1, 0.3, 1);
     }
-    .btn:active { transform: scale(0.94); background: #eee; }
-    .btn-outline { background: transparent; color: #fff; border: 1px solid var(--glass-stroke); margin-top: 12px; }
+    .btn:active { transform: scale(0.96); }
+    .btn-outline { background: transparent; color: #fff; border: 1px solid var(--glass-stroke); margin-top: 10px; }
 
-    /* Modern Progress Dock */
+    /* Compact Timeline - prevents scrolling */
+    .compact-list {
+      width: 100%; display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;
+    }
+    .list-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; border-radius: 18px; background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.02);
+    }
+    .item-time { font-size: 10px; font-weight: 800; color: var(--p); letter-spacing: 0.5px; }
+    .item-text { font-size: 14px; font-weight: 500; color: #fff; }
+
+    /* Navigation Dots */
     nav {
       position: fixed; bottom: calc(env(safe-area-inset-bottom) + 30px);
       left: 50%; transform: translateX(-50%);
-      display: flex; gap: 12px; z-index: 100;
+      display: flex; gap: 10px; z-index: 100;
     }
     .dot {
-      width: 8px; height: 8px; border-radius: 50%;
+      width: 6px; height: 6px; border-radius: 50%;
       background: var(--glass-stroke); transition: 0.4s;
     }
-    .dot.active { background: var(--p); width: 28px; border-radius: 10px; box-shadow: 0 0 15px rgba(194, 209, 255, 0.4); }
+    .dot.active { background: var(--p); width: 20px; border-radius: 10px; }
 
-    /* Timeline List */
-    .timeline { text-align: left; display: flex; flex-direction: column; gap: 14px; }
-    .item {
-      display: flex; align-items: center; gap: 18px;
-      padding: 16px; border-radius: 20px; background: rgba(255,255,255,0.03);
+    /* Animation for the Decision Phase */
+    @keyframes pulse-glow {
+      0% { border-color: var(--glass-stroke); }
+      50% { border-color: var(--p); box-shadow: 0 0 30px rgba(194, 209, 255, 0.1); }
+      100% { border-color: var(--glass-stroke); }
     }
-    .time { font-size: 11px; font-weight: 800; color: var(--p); opacity: 0.8; width: 60px; }
-    .act { font-size: 15px; font-weight: 500; color: #fff; }
-
-    /* Aura Pulse for Decide */
-    @keyframes aura { 
-      0% { box-shadow: 0 0 0 0px rgba(194, 209, 255, 0.1); }
-      50% { box-shadow: 0 0 50px 10px rgba(194, 209, 255, 0.05); }
-      100% { box-shadow: 0 0 0 0px rgba(194, 209, 255, 0.1); }
-    }
-    .deciding .glass-inner { animation: aura 2s infinite; }
+    .thinking .glass-inner { animation: pulse-glow 1.5s infinite; }
 
   </style>
 </head>
@@ -129,55 +129,55 @@
   <div class="mesh"></div>
 
   <header>
-    <div style="font-weight: 700; font-size: 13px; letter-spacing: 2px; color: var(--text-soft);">RITUAL v2.0</div>
+    <div style="font-weight: 700; font-size: 11px; letter-spacing: 2px; color: var(--text-soft);">THE RITUAL</div>
     <div class="audio-trigger" id="audioBtn" onclick="toggleAudio()">Sound Off</div>
   </header>
 
   <main>
-    <div class="card-stack" id="stack">
+    <div class="ritual-container" id="ritualCard">
       
       <div id="view-story" class="tab-view active">
         <div class="glass-inner">
-          <div style="font-size: 40px; margin-bottom: 20px;">🕯️</div>
-          <h1>Focus.</h1>
-          <p>Tomorrow is yours. No work, no noise. Just a curated rhythm for two souls.</p>
-          <button class="btn" onclick="next('vibe')">Begin the Ritual</button>
+          <div style="font-size: 38px; margin-bottom: 15px;">🌑</div>
+          <h1>The Beginning</h1>
+          <p>Tomorrow is an open door. Step away from the noise and let the day unfold.</p>
+          <button class="btn" onclick="next('vibe')">Begin the ritual</button>
         </div>
       </div>
 
       <div id="view-vibe" class="tab-view">
         <div class="glass-inner">
-          <div style="font-size: 40px; margin-bottom: 20px;">✨</div>
-          <h1>Quiet the Mind.</h1>
-          <p>Let go of the "to-do" list. We're letting the universe take the lead tomorrow.</p>
-          <button class="btn" onclick="next('decide')">Step Forward</button>
+          <div style="font-size: 38px; margin-bottom: 15px;">✨</div>
+          <h1>Stillness</h1>
+          <p>We are leaving the plans behind. Take a breath and trust the rhythm of the ritual.</p>
+          <button class="btn" onclick="next('decide')">Step forward</button>
         </div>
       </div>
 
       <div id="view-decide" class="tab-view">
         <div class="glass-inner">
           <div id="roll-ui">
-            <div style="font-size: 40px; margin-bottom: 20px;">🔮</div>
+            <div style="font-size: 38px; margin-bottom: 15px;">🔮</div>
             <h1>Invite Fate</h1>
-            <p>Destiny will now select the frequency for your Saturday.</p>
-            <button class="btn" onclick="startRolling()">Consult the Stars</button>
+            <p>The universe will now decide the frequency for your Saturday.</p>
+            <button class="btn" onclick="startRolling()">Consult the stars</button>
           </div>
           
           <div id="result-ui" style="display: none;">
-            <div style="font-size: 11px; font-weight: 800; color: var(--p); letter-spacing: 2px; margin-bottom: 10px;">VIBE SELECTED</div>
+            <div style="font-size: 10px; font-weight: 800; color: var(--p); letter-spacing: 2px; margin-bottom: 10px;">VIBE SELECTED</div>
             <h1 id="res-title">...</h1>
             <p id="res-desc">...</p>
             <button class="btn" onclick="next('plan')">Reveal Schedule</button>
-            <button class="btn btn-outline" onclick="startRolling()">Reroll Fate</button>
+            <button class="btn btn-outline" onclick="startRolling()">Reroll fate</button>
           </div>
         </div>
       </div>
 
       <div id="view-plan" class="tab-view">
-        <div class="glass-inner" style="padding: 35px 20px; justify-content: flex-start;">
-          <h2 id="plan-name" style="margin-top:0">The Path</h2>
-          <div class="timeline" id="timeline"></div>
-          <button class="btn btn-outline" style="margin-top: auto;" onclick="location.reload()">Start Over</button>
+        <div class="glass-inner" style="justify-content: flex-start; padding-top: 45px;">
+          <h2 id="plan-name" style="margin: 0 0 25px; font-size: 24px;">The Path</h2>
+          <div class="compact-list" id="timeline"></div>
+          <button class="btn btn-outline" style="margin-top: auto;" onclick="location.reload()">Reset ritual</button>
         </div>
       </div>
 
@@ -190,14 +190,13 @@
 
   <script>
     const OPTIONS = [
-      { name: "Urban Bloom", icon: "🏙️", d: "A day of city lights and shared motion.", s: [["10:30", "Slow Brew Coffee"], ["12:00", "Boutique Brunch"], ["14:00", "Gallery Wander"], ["19:00", "Skyline Dinner"]] },
-      { name: "Velvet Home", icon: "🏠", d: "A sanctuary of comfort and soft light.", s: [["11:00", "Silk Morning"], ["13:00", "Co-op Play"], ["16:00", "Ambient Nap"], ["20:00", "Chef's Table at Home"]] }
+      { name: "Urban Bloom", icon: "🏙️", d: "City lights and shared motion.", s: [["10:30", "Slow Coffee"], ["12:30", "Urban Brunch"], ["15:00", "Gallery Walk"], ["19:30", "Night Dinner"]] },
+      { name: "Velvet Home", icon: "🏠", d: "Comfort and soft light.", s: [["11:00", "Silk Morning"], ["13:30", "Co-op Play"], ["16:30", "Quiet Nap"], ["20:00", "Candlelight"]] }
     ];
 
     let current = null;
     let audioCtx, gainNode, osc1, osc2;
 
-    // AUDIO SYSTEM (Premium Ambient Chord)
     function initAudio() {
       if (audioCtx) return;
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -210,23 +209,21 @@
       initAudio();
       const btn = document.getElementById('audioBtn');
       if (osc1) {
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.5);
-        setTimeout(() => { osc1.stop(); osc2.stop(); osc1 = null; }, 1600);
-        btn.textContent = "Sound Off"; btn.style.color = "var(--p)";
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1);
+        setTimeout(() => { osc1.stop(); osc2.stop(); osc1 = null; }, 1100);
+        btn.textContent = "Sound Off";
       } else {
         if (audioCtx.state === 'suspended') audioCtx.resume();
-        osc1 = audioCtx.createOscillator();
-        osc2 = audioCtx.createOscillator();
-        osc1.frequency.setValueAtTime(196.00, audioCtx.currentTime); // G3
-        osc2.frequency.setValueAtTime(246.94, audioCtx.currentTime); // B3 (Major 3rd)
+        osc1 = audioCtx.createOscillator(); osc2 = audioCtx.createOscillator();
+        osc1.frequency.setValueAtTime(196.00, audioCtx.currentTime); 
+        osc2.frequency.setValueAtTime(246.94, audioCtx.currentTime); 
         osc1.connect(gainNode); osc2.connect(gainNode);
         osc1.start(); osc2.start();
-        gainNode.gain.exponentialRampToValueAtTime(0.04, audioCtx.currentTime + 2);
-        btn.textContent = "Sound On"; btn.style.color = "#fff";
+        gainNode.gain.exponentialRampToValueAtTime(0.03, audioCtx.currentTime + 2);
+        btn.textContent = "Sound On";
       }
     }
 
-    // NAVIGATION
     function next(id) {
       document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
       const target = document.getElementById('view-' + id);
@@ -241,28 +238,27 @@
       if (id === 'plan' && current) renderPlan();
     }
 
-    // FATE LOGIC
     function startRolling() {
-      const stack = document.getElementById('stack');
-      stack.classList.add('deciding');
+      const card = document.getElementById('ritualCard');
+      card.classList.add('thinking');
       document.getElementById('roll-ui').style.display = 'none';
       document.getElementById('result-ui').style.display = 'none';
 
       setTimeout(() => {
-        stack.classList.remove('deciding');
+        card.classList.remove('thinking');
         current = OPTIONS[Math.floor(Math.random() * OPTIONS.length)];
         document.getElementById('res-title').textContent = current.icon + " " + current.name;
         document.getElementById('res-desc').textContent = current.d;
         document.getElementById('result-ui').style.display = 'block';
-      }, 2000);
+      }, 1800);
     }
 
     function renderPlan() {
-      document.getElementById('plan-name').textContent = current.name;
+      document.getElementById('plan-name').textContent = current.icon + " " + current.name;
       document.getElementById('timeline').innerHTML = current.s.map(i => `
-        <div class="item">
-          <div class="time">${i[0]}</div>
-          <div class="act">${i[1]}</div>
+        <div class="list-item">
+          <div class="item-time">${i[0]}</div>
+          <div class="item-text">${i[1]}</div>
         </div>
       `).join('');
     }
